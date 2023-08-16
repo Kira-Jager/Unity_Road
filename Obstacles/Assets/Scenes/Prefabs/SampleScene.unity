@@ -1323,7 +1323,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1419953729}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1336,7 +1336,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: dba76b564e4d031429f768d55375f81d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1431,11 +1431,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7824563316329170326, guid: d9a0868d5f2d30a4babcae9bde860d61, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -8.7
+      value: -5.53
       objectReference: {fileID: 0}
     - target: {fileID: -7824563316329170326, guid: d9a0868d5f2d30a4babcae9bde860d61, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.83
+      objectReference: {fileID: 0}
+    - target: {fileID: -7824563316329170326, guid: d9a0868d5f2d30a4babcae9bde860d61, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 17.64
       objectReference: {fileID: 0}
     - target: {fileID: -6117625202045157096, guid: d9a0868d5f2d30a4babcae9bde860d61, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -1615,7 +1619,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4980481202949396005, guid: d9a0868d5f2d30a4babcae9bde860d61, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 7.89
+      value: 14.07
       objectReference: {fileID: 0}
     - target: {fileID: 6474062478357884827, guid: d9a0868d5f2d30a4babcae9bde860d61, type: 3}
       propertyPath: m_Name
@@ -1979,7 +1983,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 94
   m_CollisionDetection: 0
 --- !u!114 &1916169910
 MonoBehaviour:
