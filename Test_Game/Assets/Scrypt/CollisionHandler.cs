@@ -14,20 +14,9 @@ public class CollisionHandler : MonoBehaviour
         if (obj.gameObject.tag == "ground")
         {
             obj.material.color = Color.red;
-            obj.tag = "finish";
         }
 
         ground = GameObject.FindGameObjectsWithTag("ground");
-
-        for (int i = 0; i<= ground.Length; i++)
-        {
-            break;
-        }
-
-
-        /*else if (obj.gameObject.tag == "wall")
-        {
-            obj.material.color = Color.blue;
-        }*/
+      
     }
 }
