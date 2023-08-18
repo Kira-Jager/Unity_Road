@@ -18,6 +18,7 @@ public class Mover : MonoBehaviour
 
     private Vector2 currentMousePos;
     private Vector2 firstMousePos;
+    private Vector2 previousMousePos;
     private Vector2 secondMousePos;
 
 
@@ -43,7 +44,7 @@ public class Mover : MonoBehaviour
     
     private void MoveWithMouse()
     {
-        if (Input.GetMouseButtonUp(0))
+        /*if (Input.GetMouseButtonUp(0))
         {
             firstMousePos = Input.mousePosition;
         };
@@ -52,31 +53,63 @@ public class Mover : MonoBehaviour
         {
             secondMousePos = Input.mousePosition;
             currentMousePos = secondMousePos - firstMousePos;
-            /*transform.Translate(currentMousePos.x * speed * Time.deltaTime, 0, currentMousePos.y * speed * Time.deltaTime);*/
         };
-        currentMousePos.Normalize();
+        currentMousePos.Normalize();*/
 
-        xMouse = currentMousePos.x;
-        yMouse = currentMousePos.y;
+        /*xMouse = currentMousePos.x;
+        yMouse = currentMousePos.y;*/
 
-        if(xMouse > 0 && yMouse > -0.5f && yMouse < 0.5f)
+        /* if (Input.GetMouseButtonDown(0))
+         {
+             firstMousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+         }
+
+         if(Input.GetMouseButtonUp(0))
+         {
+             secondMousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+             currentMousePos = secondMousePos - firstMousePos;
+         }
+ */
+
+        if (Input.GetMouseButtonDown(0))
         {
-            rb.velocity = Vector3.back * speed;
-        }
-        else if(xMouse < 0 && yMouse > -0.5f && yMouse < 0.5f)
-        {
-            rb.velocity = Vector3.forward * speed;
-        }
-        else if(yMouse > 0 && xMouse > -0.5f && xMouse < 0.5f)
-        {
-            rb.velocity = Vector3.left * speed;
-        }
-        else if(yMouse < 0 && xMouse > -0.5f && xMouse < 0.5f)
-        {
-            rb.velocity = Vector3.right * speed;
+            previousMousePos = Input.mousePosition;
         }
 
+        if (Input.GetMouseButton(0))
+        {
+            Vector2 currentMousePos = Input.mousePosition;
+            Vector2 deltaMousePos = currentMousePos - previousMousePos;
+            // Use deltaMousePos for movement calculations
+            xMouse = deltaMousePos.x;
+            yMouse = deltaMousePos.y;
+            // Update previousMousePos for the next frame
+            previousMousePos = currentMousePos;
+        }
 
+        if (Mathf.Abs(xMouse) > Mathf.Abs(yMouse))
+        {
+            if (xMouse > 0)
+            {
+                rb.AddForce ( Vector3.right * speed);
+            }
+            else if (xMouse < 0)
+            {
+                rb.AddForce(Vector3.left * speed);
+
+            }
+        }
+        else
+        {
+            if (yMouse > 0)
+            {
+                rb.AddForce(Vector3.forward * speed);
+            }
+            else if (yMouse < 0)
+            {
+                rb.AddForce(Vector3.back * speed);
+            }
+        }
 
 
 
