@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+
 
 public class CollisionHandler : MonoBehaviour
 {
@@ -13,7 +15,13 @@ public class CollisionHandler : MonoBehaviour
     float redCount = 0f;
 
     public Image image;
-    public Image WinPanel;
+    public GameObject  WinPanel;
+
+    int sceneIndex;
+    private void Start()
+    {
+        sceneIndex = SceneManager.GetActiveScene().buildIndex;
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -35,8 +43,15 @@ public class CollisionHandler : MonoBehaviour
 
                 if (image.fillAmount == 1)
                 {
-                    WinPanel.enabled = true;
-                    Debug.Log("WinPanel.enabled = " + WinPanel.enabled);
+                    WinPanel.SetActive(true);
+                    Debug.Log("WinPanel.enabled = " + true);
+
+                    /*SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);*/
+                    /*if(SceneManager.GetActiveScene().buildIndex == SceneManager.sceneCountInBuildSettings - 1)
+                    {
+                        SceneManager.LoadScene(0);
+                    }
+                    image.fillAmount = 0;*/
                 }
             }
             obj.material.color = Color.red;

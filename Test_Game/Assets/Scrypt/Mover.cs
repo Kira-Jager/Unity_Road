@@ -44,34 +44,34 @@ public class Mover : MonoBehaviour
     
     private void MoveWithMouse()
     {
-        /*if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonDown(0))
         {
             firstMousePos = Input.mousePosition;
         };
 
-      if (Input.GetMouseButtonDown(0))
+      if (Input.GetMouseButtonUp(0))
         {
             secondMousePos = Input.mousePosition;
             currentMousePos = secondMousePos - firstMousePos;
         };
-        currentMousePos.Normalize();*/
+        currentMousePos.Normalize();
 
-        /*xMouse = currentMousePos.x;
-        yMouse = currentMousePos.y;*/
+        xMouse = currentMousePos.x;
+        yMouse = currentMousePos.y;
 
-        /* if (Input.GetMouseButtonDown(0))
-         {
-             firstMousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-         }
+        /*if (Input.GetMouseButtonDown(0))
+        {
+            firstMousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        }
 
-         if(Input.GetMouseButtonUp(0))
-         {
-             secondMousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-             currentMousePos = secondMousePos - firstMousePos;
-         }
- */
+        if(Input.GetMouseButtonUp(0))
+        {
+            secondMousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+            currentMousePos = secondMousePos - firstMousePos;
+        }*/
 
-        if (Input.GetMouseButtonDown(0))
+
+        /*if (Input.GetMouseButtonDown(0))
         {
             previousMousePos = Input.mousePosition;
         }
@@ -85,13 +85,13 @@ public class Mover : MonoBehaviour
             yMouse = deltaMousePos.y;
             // Update previousMousePos for the next frame
             previousMousePos = currentMousePos;
-        }
+        }*/
 
         if (Mathf.Abs(xMouse) > Mathf.Abs(yMouse))
         {
             if (xMouse > 0)
             {
-                rb.AddForce ( Vector3.right * speed);
+                rb.AddForce(Vector3.right * speed);
             }
             else if (xMouse < 0)
             {

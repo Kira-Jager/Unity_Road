@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;  
 
 
@@ -9,18 +9,36 @@ public class GameManager : MonoBehaviour
 {
     int sceneIndex;
     // Start is called before the first frame update
+    public Image NextPanel;
     void Start()
     {
         sceneIndex = SceneManager.GetActiveScene().buildIndex;   
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        gameLevelManager();
+    
+
+    void OnNextButtonClick() {
+
+        Debug.Log("Next button clicked");
+
+        SceneManager.LoadScene(sceneIndex + 1);
+        if (sceneIndex == SceneManager.sceneCountInBuildSettings - 1)
+        {
+            SceneManager.LoadScene(0);
+        }
     }
 
-    void gameLevelManager()
+    private void OnQuitButtonClick()
+    {
+        Debug.Log("Quit button clicked");
+        Application.Quit();
+    }
+
+    }
+
+
+    /*void gameLevelManager()
     {
         if (EventSystem.current.currentSelectedGameObject != null)
         {
@@ -42,5 +60,5 @@ public class GameManager : MonoBehaviour
             }
         }
 
-    }
-}
+    }*/
+
