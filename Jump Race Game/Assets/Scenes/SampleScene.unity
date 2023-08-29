@@ -1066,9 +1066,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jumpForce: 12
-  moveSpeed: 7
+  moveSpeed: 9
   vcam: {fileID: 1766368435}
   rotationSpeed: 2
+  plateforme: {fileID: 39527503}
 --- !u!1 &2049139018
 GameObject:
   m_ObjectHideFlags: 3
