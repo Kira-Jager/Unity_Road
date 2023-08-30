@@ -356,6 +356,7 @@
 -analyzer:"E:/Program/Unity/Unity Editor/2022.3.6f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
 "Assets/Scrypts/jumpMove.cs"
 "Assets/Scrypts/startFliping.cs"
+"Assets/Scrypts/tromp_colision.cs"
 -langversion:9.0
 
 /deterministic

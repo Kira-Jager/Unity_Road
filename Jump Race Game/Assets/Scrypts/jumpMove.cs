@@ -32,7 +32,6 @@ public class jumpMove : MonoBehaviour
         {
             plateformChild[i] = plateforme.transform.GetChild(i).gameObject;
             //Debug.Log("Child name in Start: " + plateformChild[i].name);
-            // Perform operations with the child here
         }
     }
 
@@ -43,24 +42,28 @@ public class jumpMove : MonoBehaviour
         isJumping = true;
         animator.SetBool("isJumping", true);
         animator.SetBool("isFliping", true);
-        //Debug.Log("jumping");
+        Debug.Log(plateformChild.Length + " = lenght");
+
         Invoke("startFlipping", 0.8f);
 
         for (int i = 0; i < plateformChild.Length; i++)
         {
-            if(collision.gameObject == plateformChild[i] && collision.gameObject.tag == "plateforme")
+            //if(collision.gameObject == plateformChild[i] && (collision.gameObject.tag == "plateforme" || collision.gameObject.tag == "finish") )
+            if(collision.gameObject.tag == "plateforme" && collision.gameObject == plateformChild[i])
             {
-                nextPlateforme = plateformChild[i + 1] ;
+                
+                
+                    nextPlateforme = plateformChild[i + 1] ;
 
-                plateformChild[i].gameObject.tag = "Untagged";
+                    //plateformChild[i].gameObject.tag = "Untagged";
+                    lookNextPlateforme(nextPlateforme);
 
-                lookNextPlateforme(nextPlateforme);
 
-                /*Debug.Log("i = " + i);
-                Debug.Log(" plateforme Count in loop = " + plateformChild.Length);*/
+                Debug.Log("i = " + i);
+                Debug.Log(" plateforme Count in loop = " + plateformChild.Length);
 
-                /*Debug.Log("current plateforme name  = " + plateformChild[i].name);
-                Debug.Log("next plateforme name = " + (nextPlateforme != null ? nextPlateforme.name : "None"));*/
+                Debug.Log("current plateforme name  = " + plateformChild[i].name);
+                Debug.Log("next plateforme name = " + (nextPlateforme != null ? nextPlateforme.name : "None"));
 
                 break;
             }
@@ -68,7 +71,7 @@ public class jumpMove : MonoBehaviour
         }
 
 
-        if (collision.gameObject.tag == "finish")
+        if (collision.gameObject.tag == "Finish")
         {
             Debug.Log("Done");
         }
@@ -81,7 +84,6 @@ public class jumpMove : MonoBehaviour
         Debug.Log("startFlipping");
         animator.SetBool("isFliping", false);
         animator.SetBool("isJumping", false);
-
     }
 
     private void OnTriggerEnter(Collider other)
@@ -92,14 +94,12 @@ public class jumpMove : MonoBehaviour
         }
     }
 
-
     private void FixedUpdate()
     {
         if (Input.GetMouseButtonDown(0))
         {
             dragOrigin = Input.mousePosition;
             rb.velocity = Vector3.forward * moveSpeed * Time.deltaTime;
-
         }
 
         if (Input.GetMouseButton(0) && isJumping)
@@ -132,19 +132,26 @@ public class jumpMove : MonoBehaviour
         if (nextPlateforme != null)
         {
             Vector3 directionToNextPlatform = nextPlateforme.transform.position - transform.position;
-            directionToNextPlatform.y = 0; // Ignore vertical difference
+            directionToNextPlatform.y = 0; 
 
             Quaternion targetRotation = Quaternion.LookRotation(directionToNextPlatform);
 
             // Rotate the character
-            transform.rotation = targetRotation;
+
+            //transform.rotation = targetRotation;
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 3f);
+
 
             // Calculate the camera's new rotation without changing its y position
+
             Vector3 vcamRotateEulerAngles = new Vector3(vcam.transform.rotation.eulerAngles.x, targetRotation.eulerAngles.y, vcam.transform.rotation.eulerAngles.z);
             Quaternion vcamRotateQuaternion = Quaternion.Euler(vcamRotateEulerAngles);
 
             // Set the camera's rotation
-            vcam.transform.rotation = vcamRotateQuaternion;
+
+           vcam.transform.rotation = Quaternion.Slerp(vcam.transform.rotation, vcamRotateQuaternion, 3f);
+           //vcam.transform.rotation =  vcamRotateQuaternion;
+            //vcam.transform.rotation = vcamRotateQuaternion;
         }
 
     }
