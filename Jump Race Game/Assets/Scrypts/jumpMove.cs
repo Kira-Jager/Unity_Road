@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class jumpMove : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class jumpMove : MonoBehaviour
     public float rotationSpeed = 10f;
     public Cinemachine.CinemachineVirtualCamera vcam;
     public GameObject plateforme;
+    public Canvas canvas;
 
     private Rigidbody rb;
     private Animator animator;
@@ -19,65 +21,105 @@ public class jumpMove : MonoBehaviour
 
     private GameObject[] plateformChild;
     private GameObject nextPlateforme;
+    
     private int childCount;
+    private int twice = 0;
+    private int currentLevel = 0;
+    private bool isCanvasActive = false;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
 
+
         childCount = plateforme.transform.childCount;
         plateformChild = new GameObject[childCount];
         for (int i = 0; i < childCount; i++)
         {
-            plateformChild[i] = plateforme.transform.GetChild(i).gameObject;
+            plateformChild[i] = plateforme.transform.GetChild(i).GetChild(0).gameObject;
             //Debug.Log("Child name in Start: " + plateformChild[i].name);
         }
+        currentLevel = SceneManager.GetActiveScene().buildIndex;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
 
         rb.velocity = Vector3.up * jumpForce;
+
+        AnimateJump();
+
+        if (twice == 2)
+        {
+            twice = 0;
+        }
+
+        FindNextPlaterform(collision);
+
+        //Debug.Log("twice in collision = " + twice);
+
+
+    }
+
+    private void ManageLevel()
+    {
+        canvas.gameObject.SetActive(true);
+        isCanvasActive = true;
+
+
+    }
+
+    private void FindNextPlaterform(Collision collision)
+    {
+        for (int i = 0; i < plateformChild.Length; i++)
+        {
+            if (collision.gameObject.tag == "plateforme" && collision.gameObject == plateformChild[i] && !isCanvasActive)
+            {
+
+
+                nextPlateforme = i < plateformChild.Length-1 ?  plateformChild[i + 1] : null;
+
+                //plateformChild[i].gameObject.tag = "Untagged";
+
+                twice++;
+
+                if (!Input.GetMouseButton(0) && twice == 2)
+                {
+                    //Invoke("lookNextPlateforme", 1.5f);
+                    lookNextPlateforme();
+                }
+                
+                if(nextPlateforme == null)
+                {
+                    ManageLevel();
+                    Debug.Log("Done");
+                }
+
+                //Debug.Log("twice in loop = " + twice);
+
+
+                /* Debug.Log("i = " + i);
+                 Debug.Log(" plateforme Count in loop = " + plateformChild.Length);
+
+                 Debug.Log("current plateforme name  = " + plateformChild[i].name);
+                 Debug.Log("next plateforme name = " + (nextPlateforme != null ? nextPlateforme.name : "None"));*/
+
+                break;
+            }
+
+        }
+    }
+
+    private void AnimateJump()
+    {
         isJumping = true;
         animator.SetBool("isJumping", true);
         animator.SetBool("isFliping", true);
         Debug.Log(plateformChild.Length + " = lenght");
 
         Invoke("startFlipping", 0.8f);
-
-        for (int i = 0; i < plateformChild.Length; i++)
-        {
-            //if(collision.gameObject == plateformChild[i] && (collision.gameObject.tag == "plateforme" || collision.gameObject.tag == "finish") )
-            if(collision.gameObject.tag == "plateforme" && collision.gameObject == plateformChild[i])
-            {
-                
-                
-                    nextPlateforme = plateformChild[i + 1] ;
-
-                    //plateformChild[i].gameObject.tag = "Untagged";
-                    lookNextPlateforme(nextPlateforme);
-
-
-                Debug.Log("i = " + i);
-                Debug.Log(" plateforme Count in loop = " + plateformChild.Length);
-
-                Debug.Log("current plateforme name  = " + plateformChild[i].name);
-                Debug.Log("next plateforme name = " + (nextPlateforme != null ? nextPlateforme.name : "None"));
-
-                break;
-            }
-
-        }
-
-
-        if (collision.gameObject.tag == "Finish")
-        {
-            Debug.Log("Done");
-        }
-
     }
-
 
     private void startFlipping()
     {
@@ -88,37 +130,44 @@ public class jumpMove : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        
         if (other.gameObject.tag == "deadZone")
         {
             animator.SetBool("isFalling", true);
         }
+        Invoke("loadCurrentScene", 1f);
+    }
+
+    private void loadCurrentScene()
+    {
+        SceneManager.LoadScene(currentLevel);
     }
 
     private void FixedUpdate()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !isCanvasActive)
         {
             dragOrigin = Input.mousePosition;
-            rb.velocity = Vector3.forward * moveSpeed * Time.deltaTime;
+            //rb.velocity = Vector3.forward * moveSpeed * Time.deltaTime;
         }
 
-        if (Input.GetMouseButton(0) && isJumping)
+        if (Input.GetMouseButton(0) && isJumping && !isCanvasActive)
         {
             dragDirection = (Input.mousePosition - dragOrigin).normalized;
 
-            lookTarget();
+            RotateToTarget();
 
-            /*rb.AddRelativeForce( moveSpeed * Time.deltaTime * Vector3.forward , ForceMode.VelocityChange);*/
+            //rb.AddRelativeForce( moveSpeed * Time.deltaTime * Vector3.forward , ForceMode.VelocityChange);
 
             rb.velocity += transform.forward * moveSpeed * Time.deltaTime;
 
         }
 
     }
-    void lookTarget()
+    void RotateToTarget()
     {
 
-        float rotationAmount = dragDirection.x * rotationSpeed;
+        float rotationAmount = dragDirection.x * rotationSpeed ;
 
         vcam.transform.Rotate(0f, rotationAmount, 0f, Space.World);
 
@@ -126,7 +175,7 @@ public class jumpMove : MonoBehaviour
 
     }
 
-    void lookNextPlateforme(GameObject nextPlateforme)
+    void lookNextPlateforme()
     {
 
         if (nextPlateforme != null)
@@ -136,10 +185,9 @@ public class jumpMove : MonoBehaviour
 
             Quaternion targetRotation = Quaternion.LookRotation(directionToNextPlatform);
 
-            // Rotate the character
 
             //transform.rotation = targetRotation;
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 3f);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 0.8f);
 
 
             // Calculate the camera's new rotation without changing its y position
@@ -147,11 +195,9 @@ public class jumpMove : MonoBehaviour
             Vector3 vcamRotateEulerAngles = new Vector3(vcam.transform.rotation.eulerAngles.x, targetRotation.eulerAngles.y, vcam.transform.rotation.eulerAngles.z);
             Quaternion vcamRotateQuaternion = Quaternion.Euler(vcamRotateEulerAngles);
 
-            // Set the camera's rotation
 
-           vcam.transform.rotation = Quaternion.Slerp(vcam.transform.rotation, vcamRotateQuaternion, 3f);
+           vcam.transform.rotation = Quaternion.Slerp(vcam.transform.rotation, vcamRotateQuaternion, 0.8f);
            //vcam.transform.rotation =  vcamRotateQuaternion;
-            //vcam.transform.rotation = vcamRotateQuaternion;
         }
 
     }
