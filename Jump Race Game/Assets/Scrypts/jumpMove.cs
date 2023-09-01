@@ -11,6 +11,7 @@ public class jumpMove : MonoBehaviour
     public Cinemachine.CinemachineVirtualCamera vcam;
     public GameObject plateforme;
     public Canvas canvas;
+    public static bool isCanvasActive = false;
 
     private Rigidbody rb;
     private Animator animator;
@@ -24,14 +25,14 @@ public class jumpMove : MonoBehaviour
     
     private int childCount;
     private int twice = 0;
-    private int currentLevel = 0;
-    private bool isCanvasActive = false;
+    private float MouseX;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
 
+        mainMenuCanvas();
 
         childCount = plateforme.transform.childCount;
         plateformChild = new GameObject[childCount];
@@ -40,15 +41,34 @@ public class jumpMove : MonoBehaviour
             plateformChild[i] = plateforme.transform.GetChild(i).GetChild(0).gameObject;
             //Debug.Log("Child name in Start: " + plateformChild[i].name);
         }
-        currentLevel = SceneManager.GetActiveScene().buildIndex;
+    }
+
+    private void mainMenuCanvas()
+    {
+        pauseGame();
+        canvas.transform.GetChild(3).gameObject.SetActive(true);
+        isCanvasActive = true;
+
     }
 
     private void OnCollisionEnter(Collision collision)
     {
 
         rb.velocity = Vector3.up * jumpForce;
+        
+
 
         AnimateJump();
+        isJumping = true;
+
+        //reasign drag origin to the current position of the player
+        if (Input.GetMouseButton(0) && !isCanvasActive)
+        {
+            dragOrigin = Input.mousePosition;
+            Debug.Log("new drag origin = " + dragOrigin);   
+            //rb.velocity = Vector3.forward * moveSpeed * Time.deltaTime;
+        }
+
 
         if (twice == 2)
         {
@@ -61,14 +81,8 @@ public class jumpMove : MonoBehaviour
 
 
     }
+    
 
-    private void ManageLevel()
-    {
-        canvas.gameObject.SetActive(true);
-        isCanvasActive = true;
-
-
-    }
 
     private void FindNextPlaterform(Collision collision)
     {
@@ -88,11 +102,12 @@ public class jumpMove : MonoBehaviour
                 {
                     //Invoke("lookNextPlateforme", 1.5f);
                     lookNextPlateforme();
+                    
                 }
                 
                 if(nextPlateforme == null)
                 {
-                    ManageLevel();
+                    LoadNextLevel();
                     Debug.Log("Done");
                 }
 
@@ -113,7 +128,6 @@ public class jumpMove : MonoBehaviour
 
     private void AnimateJump()
     {
-        isJumping = true;
         animator.SetBool("isJumping", true);
         animator.SetBool("isFliping", true);
         Debug.Log(plateformChild.Length + " = lenght");
@@ -140,7 +154,28 @@ public class jumpMove : MonoBehaviour
 
     private void loadCurrentScene()
     {
-        SceneManager.LoadScene(currentLevel);
+        pauseGame();
+        canvas.transform.GetChild(2).gameObject.SetActive(true);
+        isCanvasActive = true;
+        //SceneManager.LoadScene(currentLevel);
+    }
+
+    private void LoadNextLevel()
+    {
+        pauseGame();
+        canvas.transform.GetChild(1).gameObject.SetActive(true);
+        isCanvasActive = true;
+
+    }
+
+    private void pauseGame()
+    {
+        Time.timeScale = 0;
+    }
+
+    private void resumeGame()
+    {
+        Time.timeScale = 1;
     }
 
     private void FixedUpdate()
@@ -148,6 +183,7 @@ public class jumpMove : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && !isCanvasActive)
         {
             dragOrigin = Input.mousePosition;
+            Debug.Log("past drag origin = " + dragOrigin);
             //rb.velocity = Vector3.forward * moveSpeed * Time.deltaTime;
         }
 
@@ -155,11 +191,18 @@ public class jumpMove : MonoBehaviour
         {
             dragDirection = (Input.mousePosition - dragOrigin).normalized;
 
+            MouseX = Input.GetAxis("Mouse X");
+            MouseX = Mathf.Clamp(MouseX, -1f, 1f);
+            Debug.Log("MouseX = " + MouseX);
+
+
+
             RotateToTarget();
+            
 
-            //rb.AddRelativeForce( moveSpeed * Time.deltaTime * Vector3.forward , ForceMode.VelocityChange);
+            rb.AddRelativeForce( moveSpeed * Time.deltaTime * Vector3.forward , ForceMode.VelocityChange);
 
-            rb.velocity += transform.forward * moveSpeed * Time.deltaTime;
+            //rb.velocity += transform.forward * moveSpeed * Time.deltaTime;
 
         }
 
@@ -167,16 +210,19 @@ public class jumpMove : MonoBehaviour
     void RotateToTarget()
     {
 
-        float rotationAmount = dragDirection.x * rotationSpeed ;
+        //float rotationAmount = dragDirection.x * rotationSpeed ;
+        float rotationAmount = MouseX * rotationSpeed ;
 
         vcam.transform.Rotate(0f, rotationAmount, 0f, Space.World);
 
         transform.Rotate(0f, rotationAmount, 0f, Space.World);
 
+        
     }
 
     void lookNextPlateforme()
     {
+        float rotationSpeed = 0.8f;
 
         if (nextPlateforme != null)
         {
@@ -187,7 +233,7 @@ public class jumpMove : MonoBehaviour
 
 
             //transform.rotation = targetRotation;
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 0.8f);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed);
 
 
             // Calculate the camera's new rotation without changing its y position
@@ -196,7 +242,7 @@ public class jumpMove : MonoBehaviour
             Quaternion vcamRotateQuaternion = Quaternion.Euler(vcamRotateEulerAngles);
 
 
-           vcam.transform.rotation = Quaternion.Slerp(vcam.transform.rotation, vcamRotateQuaternion, 0.8f);
+           vcam.transform.rotation = Quaternion.Slerp(vcam.transform.rotation, vcamRotateQuaternion, rotationSpeed);
            //vcam.transform.rotation =  vcamRotateQuaternion;
         }
 
