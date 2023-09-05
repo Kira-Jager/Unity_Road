@@ -32,10 +32,21 @@ public class ManageLevel : MonoBehaviour
     public void onClickOnContinuetButton()
     {
         resumeGame();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-        jumpMove.isCanvasActive = false;
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        int totalScenes = SceneManager.sceneCountInBuildSettings;
 
+        if (currentSceneIndex < totalScenes - 1)
+        {
+            SceneManager.LoadScene(currentSceneIndex + 1);
+        }
+        else
+        {
+            SceneManager.LoadScene(0);
+        }
+
+        jumpMove.isCanvasActive = false;
     }
+
 
     private void pauseGame()
     {

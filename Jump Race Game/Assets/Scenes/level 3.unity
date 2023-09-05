@@ -1100,7 +1100,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0.23542203, y: -0.31214115, z: 0.0801442, w: 0.91690856}
-  m_LocalPosition: {x: 2.6075299, y: 6.7949815, z: -2.2548356}
+  m_LocalPosition: {x: 2.607515, y: 6.7949815, z: -2.2548468}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2171,7 +2171,7 @@ Transform:
   m_GameObject: {fileID: 1766368434}
   serializedVersion: 2
   m_LocalRotation: {x: 0.23542203, y: -0.31214115, z: 0.0801442, w: 0.91690856}
-  m_LocalPosition: {x: 2.6075299, y: 6.7949815, z: -2.2548356}
+  m_LocalPosition: {x: 2.607515, y: 6.7949815, z: -2.2548468}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2310,8 +2310,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jumpForce: 12
-  moveSpeed: 9
-  rotationSpeed: 2
+  moveSpeed: 12
+  rotationSpeed: 170
   vcam: {fileID: 1766368435}
   plateforme: {fileID: 1193769951}
   canvas: {fileID: 1823908983}

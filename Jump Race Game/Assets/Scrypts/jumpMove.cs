@@ -17,15 +17,22 @@ public class jumpMove : MonoBehaviour
     private Animator animator;
 
     private bool isJumping = false;
-    private Vector3 dragOrigin;
+    private Vector3 previousMousePosition;
+    private Vector3 currentMousePosition;
     private Vector3 dragDirection;
+    private Vector3 mousePosiiton;
 
     private GameObject[] plateformChild;
     private GameObject nextPlateforme;
-    
+
     private int childCount;
     private int twice = 0;
     private float MouseX;
+    private float rotationAmount ;
+
+    private bool isDragging = false; 
+    private Quaternion initialRotation;
+
 
     void Start()
     {
@@ -55,19 +62,19 @@ public class jumpMove : MonoBehaviour
     {
 
         rb.velocity = Vector3.up * jumpForce;
-        
+
 
 
         AnimateJump();
         isJumping = true;
 
         //reasign drag origin to the current position of the player
-        if (Input.GetMouseButton(0) && !isCanvasActive)
+       /* if (Input.GetMouseButton(0) && !isCanvasActive)
         {
-            dragOrigin = Input.mousePosition;
-            Debug.Log("new drag origin = " + dragOrigin);   
+            previousMousePosition = Input.mousePosition;
+            Debug.Log("new drag origin = " + previousMousePosition);
             //rb.velocity = Vector3.forward * moveSpeed * Time.deltaTime;
-        }
+        }*/
 
 
         if (twice == 2)
@@ -81,7 +88,7 @@ public class jumpMove : MonoBehaviour
 
 
     }
-    
+
 
 
     private void FindNextPlaterform(Collision collision)
@@ -92,7 +99,7 @@ public class jumpMove : MonoBehaviour
             {
 
 
-                nextPlateforme = i < plateformChild.Length-1 ?  plateformChild[i + 1] : null;
+                nextPlateforme = i < plateformChild.Length - 1 ? plateformChild[i + 1] : null;
 
                 //plateformChild[i].gameObject.tag = "Untagged";
 
@@ -102,10 +109,10 @@ public class jumpMove : MonoBehaviour
                 {
                     //Invoke("lookNextPlateforme", 1.5f);
                     lookNextPlateforme();
-                    
+
                 }
-                
-                if(nextPlateforme == null)
+
+                if (nextPlateforme == null)
                 {
                     LoadNextLevel();
                     Debug.Log("Done");
@@ -130,21 +137,21 @@ public class jumpMove : MonoBehaviour
     {
         animator.SetBool("isJumping", true);
         animator.SetBool("isFliping", true);
-        Debug.Log(plateformChild.Length + " = lenght");
+        //Debug.Log(plateformChild.Length + " = lenght");
 
         Invoke("startFlipping", 0.8f);
     }
 
     private void startFlipping()
     {
-        Debug.Log("startFlipping");
+        //Debug.Log("startFlipping");
         animator.SetBool("isFliping", false);
         animator.SetBool("isJumping", false);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        
+
         if (other.gameObject.tag == "deadZone")
         {
             animator.SetBool("isFalling", true);
@@ -173,52 +180,59 @@ public class jumpMove : MonoBehaviour
         Time.timeScale = 0;
     }
 
-    private void resumeGame()
-    {
-        Time.timeScale = 1;
-    }
 
     private void FixedUpdate()
     {
         if (Input.GetMouseButtonDown(0) && !isCanvasActive)
         {
-            dragOrigin = Input.mousePosition;
-            Debug.Log("past drag origin = " + dragOrigin);
-            //rb.velocity = Vector3.forward * moveSpeed * Time.deltaTime;
+            isDragging = true;
+            initialRotation = vcam.transform.rotation;
+            previousMousePosition = Input.mousePosition;
+            Debug.Log("previousMousePosition = " + previousMousePosition);
+
         }
 
-        if (Input.GetMouseButton(0) && isJumping && !isCanvasActive)
+        if (Input.GetMouseButton(0) && isJumping && !isCanvasActive && isDragging)
         {
-            dragDirection = (Input.mousePosition - dragOrigin).normalized;
+            currentMousePosition = Input.mousePosition;
 
-            MouseX = Input.GetAxis("Mouse X");
-            MouseX = Mathf.Clamp(MouseX, -1f, 1f);
-            Debug.Log("MouseX = " + MouseX);
+            // Calculate mouse delta
+            Vector3 mouseDelta = currentMousePosition - previousMousePosition;
+
+            if (mouseDelta != Vector3.zero)
+            {
+                float rotationAmount = mouseDelta.x * rotationSpeed * Time.deltaTime;
+
+                RotateToTarget(rotationAmount);
+
+                Debug.Log("previousMousePosition = " + previousMousePosition);
+                Debug.Log("currentMousePosition = " + currentMousePosition);
+            }
+
+            // Always update previousMousePosition, whether mouse moved or not
+            previousMousePosition = currentMousePosition;
 
 
+            //rb.AddRelativeForce(moveSpeed * Time.deltaTime * Vector3.forward, ForceMode.VelocityChange);
 
-            RotateToTarget();
-            
-
-            rb.AddRelativeForce( moveSpeed * Time.deltaTime * Vector3.forward , ForceMode.VelocityChange);
-
-            //rb.velocity += transform.forward * moveSpeed * Time.deltaTime;
-
+            rb.velocity += transform.forward * moveSpeed * Time.deltaTime;
         }
-
-    }
-    void RotateToTarget()
-    {
-
-        //float rotationAmount = dragDirection.x * rotationSpeed ;
-        float rotationAmount = MouseX * rotationSpeed ;
-
-        vcam.transform.Rotate(0f, rotationAmount, 0f, Space.World);
-
-        transform.Rotate(0f, rotationAmount, 0f, Space.World);
 
         
     }
+
+    void RotateToTarget(float rotationAmount)
+    {
+        // Rotate based on the calculated rotationAmount
+        vcam.transform.Rotate(0f, rotationAmount, 0f, Space.World);
+
+        // Update the character's rotation to match vcam's rotation only along the Y-axis
+        Vector3 characterRotation = transform.rotation.eulerAngles;
+        characterRotation.y = vcam.transform.rotation.eulerAngles.y;
+        transform.rotation = Quaternion.Euler(characterRotation);
+    }
+
+
 
     void lookNextPlateforme()
     {
@@ -227,7 +241,7 @@ public class jumpMove : MonoBehaviour
         if (nextPlateforme != null)
         {
             Vector3 directionToNextPlatform = nextPlateforme.transform.position - transform.position;
-            directionToNextPlatform.y = 0; 
+            directionToNextPlatform.y = 0;
 
             Quaternion targetRotation = Quaternion.LookRotation(directionToNextPlatform);
 
@@ -242,14 +256,13 @@ public class jumpMove : MonoBehaviour
             Quaternion vcamRotateQuaternion = Quaternion.Euler(vcamRotateEulerAngles);
 
 
-           vcam.transform.rotation = Quaternion.Slerp(vcam.transform.rotation, vcamRotateQuaternion, rotationSpeed);
-           //vcam.transform.rotation =  vcamRotateQuaternion;
+            vcam.transform.rotation = Quaternion.Slerp(vcam.transform.rotation, vcamRotateQuaternion, rotationSpeed);
+            //vcam.transform.rotation =  vcamRotateQuaternion;
         }
 
     }
 
 }
-
 
 
 
