@@ -10,9 +10,9 @@ public class ManageLevel : MonoBehaviour
     public Canvas canvas;
     public void onClickOnStartButton()
     {
+        //jumpMove.isCanvasActive = false;
         resumeGame();
         canvas.transform.GetChild(3).gameObject.SetActive(false);
-        jumpMove.isCanvasActive = false;
     }
     public void onClickOnQuitButton()
     {
@@ -23,9 +23,9 @@ public class ManageLevel : MonoBehaviour
 
     public void onClickOnRetryButton()
     {
+        //jumpMove.isCanvasActive = false;
         resumeGame();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        jumpMove.isCanvasActive = false;
 
     }
 
@@ -35,16 +35,21 @@ public class ManageLevel : MonoBehaviour
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         int totalScenes = SceneManager.sceneCountInBuildSettings;
 
+        //jumpMove.isCanvasActive = false;
+
         if (currentSceneIndex < totalScenes - 1)
         {
             SceneManager.LoadScene(currentSceneIndex + 1);
+            //jumpMove.isCanvasActive = false;
+            resumeGame();
         }
         else
         {
             SceneManager.LoadScene(0);
+            //jumpMove.isCanvasActive = false;
+            resumeGame();
         }
 
-        jumpMove.isCanvasActive = false;
     }
 
 

@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,22 +18,23 @@ public class jumpMove : MonoBehaviour
     private Rigidbody rb;
     private Animator animator;
 
-    private bool isJumping = false;
     private Vector3 previousMousePosition;
     private Vector3 currentMousePosition;
-    private Vector3 dragDirection;
-    private Vector3 mousePosiiton;
+
 
     private GameObject[] plateformChild;
     private GameObject nextPlateforme;
 
     private int childCount;
     private int twice = 0;
-    private float MouseX;
     private float rotationAmount ;
 
-    private bool isDragging = false; 
+    private bool isJumping = false;
+
+    //private bool isDragging = false; 
     private Quaternion initialRotation;
+    private Quaternion initialCharacterRotation;
+    private Quaternion lastVcamRotation;
 
 
     void Start()
@@ -54,7 +57,7 @@ public class jumpMove : MonoBehaviour
     {
         pauseGame();
         canvas.transform.GetChild(3).gameObject.SetActive(true);
-        isCanvasActive = true;
+        //isCanvasActive = true;
 
     }
 
@@ -69,20 +72,19 @@ public class jumpMove : MonoBehaviour
         isJumping = true;
 
         //reasign drag origin to the current position of the player
-       /* if (Input.GetMouseButton(0) && !isCanvasActive)
-        {
-            previousMousePosition = Input.mousePosition;
-            Debug.Log("new drag origin = " + previousMousePosition);
-            //rb.velocity = Vector3.forward * moveSpeed * Time.deltaTime;
-        }*/
+        /* if (Input.GetMouseButton(0) && !isCanvasActive)
+         {
+             previousMousePosition = Input.mousePosition;
+             Debug.Log("new drag origin = " + previousMousePosition);
+             //rb.velocity = Vector3.forward * moveSpeed * Time.deltaTime;
+         }*/
 
 
-        if (twice == 2)
+        if(twice == 2)
         {
             twice = 0;
         }
-
-        FindNextPlaterform(collision);
+            FindNextPlaterform(collision);
 
         //Debug.Log("twice in collision = " + twice);
 
@@ -90,12 +92,11 @@ public class jumpMove : MonoBehaviour
     }
 
 
-
     private void FindNextPlaterform(Collision collision)
     {
         for (int i = 0; i < plateformChild.Length; i++)
         {
-            if (collision.gameObject.tag == "plateforme" && collision.gameObject == plateformChild[i] && !isCanvasActive)
+            if (collision.gameObject.tag == "plateforme" && collision.gameObject == plateformChild[i] )
             {
 
 
@@ -105,11 +106,11 @@ public class jumpMove : MonoBehaviour
 
                 twice++;
 
-                if (!Input.GetMouseButton(0) && twice == 2)
+                if (!Input.GetMouseButton(0) && twice ==2)
                 {
                     //Invoke("lookNextPlateforme", 1.5f);
-                    lookNextPlateforme();
-
+                    //lookNextPlateforme();
+                    StartCoroutine(lookNextPlateforme());
                 }
 
                 if (nextPlateforme == null)
@@ -163,7 +164,7 @@ public class jumpMove : MonoBehaviour
     {
         pauseGame();
         canvas.transform.GetChild(2).gameObject.SetActive(true);
-        isCanvasActive = true;
+        //isCanvasActive = true;
         //SceneManager.LoadScene(currentLevel);
     }
 
@@ -171,7 +172,7 @@ public class jumpMove : MonoBehaviour
     {
         pauseGame();
         canvas.transform.GetChild(1).gameObject.SetActive(true);
-        isCanvasActive = true;
+        //isCanvasActive = true;
 
     }
 
@@ -183,30 +184,30 @@ public class jumpMove : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (Input.GetMouseButtonDown(0) && !isCanvasActive)
+        Vector3 mouseDelta;
+        if (Input.GetMouseButtonDown(0) )
         {
-            isDragging = true;
-            initialRotation = vcam.transform.rotation;
-            previousMousePosition = Input.mousePosition;
-            Debug.Log("previousMousePosition = " + previousMousePosition);
+              previousMousePosition = Input.mousePosition;
+
+            //Debug.Log("previousMousePosition = " + previousMousePosition);
 
         }
 
-        if (Input.GetMouseButton(0) && isJumping && !isCanvasActive && isDragging)
+        if (Input.GetMouseButton(0) && isJumping )
         {
             currentMousePosition = Input.mousePosition;
 
-            // Calculate mouse delta
-            Vector3 mouseDelta = currentMousePosition - previousMousePosition;
+            mouseDelta = (currentMousePosition - previousMousePosition).normalized;
 
-            if (mouseDelta != Vector3.zero)
+
+            if (mouseDelta != Vector3.zero )
             {
-                float rotationAmount = mouseDelta.x * rotationSpeed * Time.deltaTime;
+                rotationAmount = mouseDelta.x * rotationSpeed * Time.deltaTime;
 
                 RotateToTarget(rotationAmount);
 
-                Debug.Log("previousMousePosition = " + previousMousePosition);
-                Debug.Log("currentMousePosition = " + currentMousePosition);
+                /*Debug.Log("previousMousePosition = " + previousMousePosition);
+                Debug.Log("currentMousePosition = " + currentMousePosition);*/
             }
 
             // Always update previousMousePosition, whether mouse moved or not
@@ -218,7 +219,6 @@ public class jumpMove : MonoBehaviour
             rb.velocity += transform.forward * moveSpeed * Time.deltaTime;
         }
 
-        
     }
 
     void RotateToTarget(float rotationAmount)
@@ -233,33 +233,36 @@ public class jumpMove : MonoBehaviour
     }
 
 
-
-    void lookNextPlateforme()
+    private IEnumerator lookNextPlateforme()
     {
-        float rotationSpeed = 0.8f;
+        float rotationSpeed = 0.01f;
 
-        if (nextPlateforme != null)
+        while (rotationSpeed < 1.0f)
         {
-            Vector3 directionToNextPlatform = nextPlateforme.transform.position - transform.position;
-            directionToNextPlatform.y = 0;
+           
+                if (nextPlateforme != null && !Input.GetMouseButton(0))
+                {
+                    Vector3 directionToNextPlatform = nextPlateforme.transform.position - transform.position;
+                    directionToNextPlatform.y = 0;
+                    Quaternion targetRotation = Quaternion.LookRotation(directionToNextPlatform);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed);
 
-            Quaternion targetRotation = Quaternion.LookRotation(directionToNextPlatform);
+                    // Calculate the camera's new rotation without changing its y position
+                    Vector3 vcamRotateEulerAngles = new Vector3(vcam.transform.rotation.eulerAngles.x, targetRotation.eulerAngles.y, vcam.transform.rotation.eulerAngles.z);
+                    Quaternion vcamRotateQuaternion = Quaternion.Euler(vcamRotateEulerAngles);
+                    vcam.transform.rotation = Quaternion.Slerp(vcam.transform.rotation, vcamRotateQuaternion, rotationSpeed);
 
+                }
+                else
+                {
+                    break; // Exit the loop if there's no next platform
+                }
+                    rotationSpeed += 0.01f;
 
-            //transform.rotation = targetRotation;
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed);
-
-
-            // Calculate the camera's new rotation without changing its y position
-
-            Vector3 vcamRotateEulerAngles = new Vector3(vcam.transform.rotation.eulerAngles.x, targetRotation.eulerAngles.y, vcam.transform.rotation.eulerAngles.z);
-            Quaternion vcamRotateQuaternion = Quaternion.Euler(vcamRotateEulerAngles);
-
-
-            vcam.transform.rotation = Quaternion.Slerp(vcam.transform.rotation, vcamRotateQuaternion, rotationSpeed);
-            //vcam.transform.rotation =  vcamRotateQuaternion;
-        }
-
+                yield return null; // Wait for the next frame   
+            }
+            
+        
     }
 
 }
