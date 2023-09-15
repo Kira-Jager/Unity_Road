@@ -56,9 +56,10 @@
     <Analyzer Include="E:\Program\Microsoft Visual Studio\2022\Community HP\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scrypt\DrawWithMouse.cs" />
-    <Compile Include="Assets\Scrypt\MouseDraw.cs" />
+    <Compile Include="Assets\Scrypt\GameManger.cs" />
     <Compile Include="Assets\Scrypt\Draw.cs" />
+    <Compile Include="Assets\Scrypt\MouseDraw.cs" />
+    <Compile Include="Assets\Scrypt\DrawWithMouse.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
