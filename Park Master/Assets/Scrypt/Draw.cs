@@ -8,6 +8,7 @@ public class Draw : MonoBehaviour
     public float distanceBetweenPoints = 0.1f;
     public LayerMask groundLayer;
     public float speed = 0.2f;
+    public float rotationSpeed = 1.0f;
 
     public GameObject car;
 
@@ -17,7 +18,7 @@ public class Draw : MonoBehaviour
     private List<Vector3> PreviousPointsList = new List<Vector3>();
 
     private bool collidedWithCar = false;
-    private bool existPreviousList = false;
+    //private bool existPreviousList = false;
 
     void Start()
     {
@@ -26,46 +27,51 @@ public class Draw : MonoBehaviour
         lineRenderer.alignment = LineAlignment.View;
         lineRenderer.positionCount = 0;
 
+        pauseGame();
     }
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if(Time.timeScale != 0)
         {
-            CheckTheHitRayOnCar();
-            if (collidedWithCar)
+            if (Input.GetMouseButtonDown(0))
             {
-                lineRenderer.enabled = true;
-                lastPoint = GetMouseWorldPosition();
-                //lineRenderer.positionCount = 1;
-                //lineRenderer.SetPosition(0, lastPoint);
-            }
-
-
-        }
-        else if (Input.GetMouseButton(0))
-        {
-            if (collidedWithCar)
-            {
-
-                Vector3 mousePoint = GetMouseWorldPosition();
-                if (Vector3.Distance(lastPoint, mousePoint) > distanceBetweenPoints)
+                CheckTheHitRayOnCar();
+                if (collidedWithCar)
                 {
-                    lastPoint = mousePoint;
-                    lineRenderer.positionCount++;
-                    lineRenderer.SetPosition(lineRenderer.positionCount - 1, lastPoint);
-                    PointsList.Add(mousePoint);
+                    lineRenderer.enabled = true;
+                    lastPoint = GetMouseWorldPosition();
+                    //lineRenderer.positionCount = 1;
+                    //lineRenderer.SetPosition(0, lastPoint);
+                }
+
+
+            }
+            else if (Input.GetMouseButton(0))
+            {
+                if (collidedWithCar)
+                {
+
+                    Vector3 mousePoint = GetMouseWorldPosition();
+                    if (Vector3.Distance(lastPoint, mousePoint) > distanceBetweenPoints)
+                    {
+                        lastPoint = mousePoint;
+                        lineRenderer.positionCount++;
+                        lineRenderer.SetPosition(lineRenderer.positionCount - 1, lastPoint);
+                        PointsList.Add(mousePoint);
+                    }
                 }
             }
+
+
+            if (Input.GetMouseButtonUp(0))
+            {
+                collidedWithCar = false;
+                StartCoroutine(MoveCarTowardPath());
+
+            }
         }
-
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            collidedWithCar = false;
-            StartCoroutine(MoveCarTowardPath());
-
-        }
+       
 
     }
 
@@ -81,16 +87,30 @@ public class Draw : MonoBehaviour
 
     private IEnumerator MoveCarTowardPath()
     {
-            float t = 0;
+        float t = 0;
+
         for (int i = 0; i < PointsList.Count - 1; i++)
         {
-            
-                t = Time.deltaTime * speed;
-                car.transform.position = Vector3.Lerp(PointsList[i], PointsList[i + 1], t);
-                
-                yield return null;
+            t = Time.deltaTime * speed;
+            car.transform.position = Vector3.Lerp(PointsList[i], PointsList[i + 1], t);
+            //car.transform.rotation = Quaternion.LookRotation(new Vector3(PointsList[i].x, PointsList[i].y, PointsList[i].z) );
 
-            
+            Vector3 direction = new Vector3(0,(PointsList[i + 1] - PointsList[i]).x,0);
+
+            //transform.Translate(movementDirection * speed * Time.deltaTime, Space.World);;
+
+            if (direction != Vector3.zero)
+            {
+
+                Quaternion toRotation = Quaternion.LookRotation(direction, Vector3.up);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
+            }
+
+            /* if (direction != Vector3.zero) // Prevent LookRotation from throwing an error when direction is zero
+                 {
+                     car.transform.rotation = Quaternion.LookRotation(direction);
+                 }*/
+            yield return null;
         }
     }
 
@@ -122,6 +142,11 @@ public class Draw : MonoBehaviour
                 Debug.Log("Collision occured with car");
             }
         }
+    }
+
+    private void pauseGame()
+    {
+        Time.timeScale = 0;
     }
 }
 

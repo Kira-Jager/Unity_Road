@@ -345,9 +345,9 @@
 -r:"Library/Bee/artifacts/1300b0aE.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/1300b0aE.dag/UnityEngine.UI.ref.dll"
 "Assets/Scrypt/Draw.cs"
-"Assets/Scrypt/DrawWithMouse.cs"
 "Assets/Scrypt/GameManger.cs"
-"Assets/Scrypt/MouseDraw.cs"
+"Assets/Scrypt/ManageLevel.cs"
+"Assets/Scrypt/MultipleDraw.cs"
 -langversion:9.0
 
 /deterministic
