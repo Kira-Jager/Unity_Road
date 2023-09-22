@@ -135,6 +135,34 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2117580191}
     m_Modifications:
+    - target: {fileID: 178096699747204006, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
+      propertyPath: m_CastShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 178096699747204006, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 178096699747204006, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
+      propertyPath: m_Parameters.alignment
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 178096699747204006, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
+      propertyPath: m_Parameters.shadowBias
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 178096699747204006, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
+      propertyPath: m_Parameters.textureMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 178096699747204006, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
+      propertyPath: m_Parameters.numCapVertices
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 178096699747204006, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
+      propertyPath: m_Parameters.numCornerVertices
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1652543936859280771, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
       propertyPath: m_Name
       value: car
@@ -145,7 +173,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2136064502058798905, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -3.5047321
       objectReference: {fileID: 0}
     - target: {fileID: 2136064502058798905, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
       propertyPath: m_LocalPosition.y
@@ -323,12 +351,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 049f90f9c629fa345b1a16eecbec2be1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distanceBetweenPoints: 0.1
+  distanceBetweenPoints: 3
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  speed: 0.1
-  rotationSpeed: 1
+  speed: 40
+  rotationSpeed: 0.1
   car:
   - {fileID: 1287473986}
   - {fileID: 1705324069}
@@ -811,6 +839,10 @@ PrefabInstance:
     - target: {fileID: 3374402574726123157, guid: bd562cd7882c66d409fedd2216552bf0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6038937527783923528, guid: bd562cd7882c66d409fedd2216552bf0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.0255547
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bd562cd7882c66d409fedd2216552bf0, type: 3}

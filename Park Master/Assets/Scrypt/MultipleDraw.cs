@@ -7,7 +7,7 @@ public class MultipleDraw : MonoBehaviour
 {
     public float distanceBetweenPoints = 0.1f;
     public LayerMask groundLayer;
-    public float speed = 0.2f;
+    public float speed = 0.1f;
     public float rotationSpeed = 1.0f;
 
     public GameObject[] car;
@@ -16,6 +16,10 @@ public class MultipleDraw : MonoBehaviour
     private Vector3 lastPoint;
     private List<Vector3>[] PointsList; //= new List<Vector3>();
     private List<Vector3> PreviousPointsList = new List<Vector3>();
+
+    private Vector3[] currentTargets;
+    private int[] currentTargetIndices;
+
 
     private int carIndex = 0;
 
@@ -31,6 +35,9 @@ public class MultipleDraw : MonoBehaviour
         {
             lineRenderer[i] = car[i].GetComponent<LineRenderer>();
             lineRenderer[i].enabled = false;
+            lineRenderer[i].startWidth = 3;
+            lineRenderer[i].endWidth = 3;
+
             lineRenderer[i].positionCount = 0;
             PointsList[i] = new List<Vector3>();
         }
@@ -39,7 +46,7 @@ public class MultipleDraw : MonoBehaviour
 
     void Update()
     {
-        if (Time.timeScale != 0 )
+        if (Time.timeScale != 0)
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -54,6 +61,30 @@ public class MultipleDraw : MonoBehaviour
 
 
             }
+
+        /*    else if (Input.GetMouseButton(0))
+            {
+                if (collidedWithCar && carIndex != -1)
+                {
+                    Vector3 mousePoint = GetMouseWorldPosition();
+                    float distance = Vector3.Distance(lastPoint, mousePoint);
+                    if (distance > distanceBetweenPoints)
+                    {
+                        // Calculate the number of intermediate points
+                        int numPoints = Mathf.FloorToInt(distance / distanceBetweenPoints);
+                        for (int i = 0; i < numPoints; i++)
+                        {
+                            // Interpolate between lastPoint and mousePoint
+                            Vector3 interpolatedPoint = Vector3.Lerp(lastPoint, mousePoint, (float)i / numPoints);
+                            lineRenderer[carIndex].positionCount++;
+                            lineRenderer[carIndex].SetPosition(lineRenderer[carIndex].positionCount - 1, interpolatedPoint);
+                            PointsList[carIndex].Add(interpolatedPoint);
+                        }
+                        lastPoint = mousePoint;
+                    }
+                }
+            }*/
+
             else if (Input.GetMouseButton(0))
             {
                 if (collidedWithCar && carIndex != -1)
@@ -74,6 +105,7 @@ public class MultipleDraw : MonoBehaviour
             if (Input.GetMouseButtonUp(0))
             {
                 collidedWithCar = false;
+                //MoveCarTowardPath();
                 StartCoroutine(MoveCarTowardPath());
 
             }
@@ -94,33 +126,51 @@ public class MultipleDraw : MonoBehaviour
 
     private IEnumerator MoveCarTowardPath()
     {
-        float t = 0;
+
+        Debug.Log("Car index = " + carIndex);
 
         for (int i = 0; i < PointsList[carIndex].Count - 1; i++)
         {
-            if(carIndex != -1)
-            {
-                t = Time.deltaTime * speed;
-                //car[carIndex].transform.Translate(PointsList[carIndex][i + 1]) ;
-                car[carIndex].transform.position = Vector3.Lerp(PointsList[carIndex][i], PointsList[carIndex][i + 1], t);
-                //car.transform.rotation = Quaternion.LookRotation(new Vector3(PointsList[i].x, PointsList[i].y, PointsList[i].z) );
-
-                Vector3 direction = new Vector3(0, (PointsList[carIndex][i + 1] - PointsList[carIndex][i]).x, 0);
-
-                direction = Vector3.Normalize(direction);   
-
-
-                if (direction != Vector3.zero)
+            
+            if (carIndex != -1)
                 {
 
-                   Quaternion toRotation = Quaternion.LookRotation(direction, Vector3.up);
-                   transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
+                float distance = Vector3.Distance(PointsList[carIndex][i], PointsList[carIndex][i + 1]);
+                float Duration = distance / speed;
+                float startTime = Time.time;
+
+                Debug.Log("Start time " + startTime);
+
+               float moveSpeed = Time.deltaTime * speed;
+
+
+                //car rotation at point i and i + 1
+
+
+
+
+                while (Time.time - startTime < Duration)
+                {
+                    float Progress = (Time.time - startTime) / Duration;
+                    car[carIndex].transform.position = Vector3.Lerp(PointsList[carIndex][i], PointsList[carIndex][i + 1], Progress);
+
+                    Vector3 directionToNextPoint = PointsList[carIndex][i + 1] - car[carIndex].transform.position;
+
+                    if (directionToNextPoint != Vector3.zero)
+                    {
+                        car[carIndex].transform.rotation = Quaternion.LookRotation(directionToNextPoint);
+                    }
+
+
+                    //car[carIndex].transform.position=  Vector3.MoveTowards(PointsList[carIndex][i], PointsList[carIndex][i +1], moveSpeed);
+                    //car[carIndex].transform.position = Vector3.Lerp(PointsList[carIndex][i], PointsList[carIndex][i + 1], moveSpeed);
+                    yield return null;
                 }
 
-           
-                yield return null;
+                car[carIndex].transform.position = PointsList[carIndex][i + 1];
+
             }
-           
+
         }
     }
 
