@@ -56,10 +56,11 @@
     <Analyzer Include="E:\Program\Microsoft Visual Studio\2022\Community HP\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scrypt\GameManger.cs" />
+    <Compile Include="Assets\Scrypt\GameManager.cs" />
     <Compile Include="Assets\Scrypt\Draw.cs" />
-    <Compile Include="Assets\Scrypt\ManageLevel.cs" />
+    <Compile Include="Assets\Scrypt\LevelManager.cs" />
     <Compile Include="Assets\Scrypt\MultipleDraw.cs" />
+    <Compile Include="Assets\Scrypt\CarCollisionEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

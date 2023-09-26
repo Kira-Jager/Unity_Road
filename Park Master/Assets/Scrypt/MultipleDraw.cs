@@ -15,21 +15,21 @@ public class MultipleDraw : MonoBehaviour
     private LineRenderer[] lineRenderer;
     private Vector3 lastPoint;
     private List<Vector3>[] PointsList; //= new List<Vector3>();
-    private List<Vector3> PreviousPointsList = new List<Vector3>();
-
-    private Vector3[] currentTargets;
-    private int[] currentTargetIndices;
-
 
     private int carIndex = 0;
 
     private bool collidedWithCar = false;
+    private bool[] carMoving;
+    private bool[] carHasPath;
+
     //private bool existPreviousList = false;
 
     void Start()
     {
         lineRenderer = new LineRenderer[car.Length];
         PointsList = new List<Vector3>[car.Length];
+        carHasPath = new bool[car.Length];
+        carMoving = new bool[car.Length];
 
         for (int i = 0; i < car.Length; i++)
         {
@@ -40,8 +40,9 @@ public class MultipleDraw : MonoBehaviour
 
             lineRenderer[i].positionCount = 0;
             PointsList[i] = new List<Vector3>();
+            carHasPath[i] = false;
+            carMoving[i] = false;
         }
-        //pauseGame();
     }
 
     void Update()
@@ -58,32 +59,7 @@ public class MultipleDraw : MonoBehaviour
                     //lineRenderer.positionCount = 1;
                     //lineRenderer.SetPosition(0, lastPoint);
                 }
-
-
             }
-
-        /*    else if (Input.GetMouseButton(0))
-            {
-                if (collidedWithCar && carIndex != -1)
-                {
-                    Vector3 mousePoint = GetMouseWorldPosition();
-                    float distance = Vector3.Distance(lastPoint, mousePoint);
-                    if (distance > distanceBetweenPoints)
-                    {
-                        // Calculate the number of intermediate points
-                        int numPoints = Mathf.FloorToInt(distance / distanceBetweenPoints);
-                        for (int i = 0; i < numPoints; i++)
-                        {
-                            // Interpolate between lastPoint and mousePoint
-                            Vector3 interpolatedPoint = Vector3.Lerp(lastPoint, mousePoint, (float)i / numPoints);
-                            lineRenderer[carIndex].positionCount++;
-                            lineRenderer[carIndex].SetPosition(lineRenderer[carIndex].positionCount - 1, interpolatedPoint);
-                            PointsList[carIndex].Add(interpolatedPoint);
-                        }
-                        lastPoint = mousePoint;
-                    }
-                }
-            }*/
 
             else if (Input.GetMouseButton(0))
             {
@@ -98,6 +74,8 @@ public class MultipleDraw : MonoBehaviour
                         lineRenderer[carIndex].SetPosition(lineRenderer[carIndex].positionCount - 1, lastPoint);
                         PointsList[carIndex].Add(mousePoint);
                     }
+
+                    carHasPath[carIndex] = true;
                 }
             }
 
@@ -106,11 +84,22 @@ public class MultipleDraw : MonoBehaviour
             {
                 collidedWithCar = false;
                 //MoveCarTowardPath();
-                StartCoroutine(MoveCarTowardPath());
+
+                if (carIndex != -1)
+                {
+                    for (int i = 0; i < car.Length; i++)
+                    {
+                        if (carHasPath[i])
+                        {
+                            car[i].gameObject.transform.position = PointsList[i][0];
+                            StartCoroutine(MoveCarTowardPath(i));
+                            carMoving[i] = true;
+                        }
+                    }
+                }
 
             }
         }
-
 
     }
 
@@ -124,45 +113,50 @@ public class MultipleDraw : MonoBehaviour
             }
         }*/
 
-    private IEnumerator MoveCarTowardPath()
+    private IEnumerator MoveCarTowardPath(int carIndex)
     {
 
         Debug.Log("Car index = " + carIndex);
 
+        carMoving[carIndex] = true;
+
         for (int i = 0; i < PointsList[carIndex].Count - 1; i++)
         {
-            
+
             if (carIndex != -1)
-                {
+            {
 
                 float distance = Vector3.Distance(PointsList[carIndex][i], PointsList[carIndex][i + 1]);
+
                 float Duration = distance / speed;
+
                 float startTime = Time.time;
 
-                Debug.Log("Start time " + startTime);
+                //Debug.Log("Start time " + startTime);
 
-               float moveSpeed = Time.deltaTime * speed;
+                float moveSpeed = Time.deltaTime * speed;
 
 
                 //car rotation at point i and i + 1
 
 
-
-
                 while (Time.time - startTime < Duration)
                 {
                     float Progress = (Time.time - startTime) / Duration;
+
                     car[carIndex].transform.position = Vector3.Lerp(PointsList[carIndex][i], PointsList[carIndex][i + 1], Progress);
 
                     Vector3 directionToNextPoint = PointsList[carIndex][i + 1] - car[carIndex].transform.position;
 
                     if (directionToNextPoint != Vector3.zero)
                     {
-                        car[carIndex].transform.rotation = Quaternion.LookRotation(directionToNextPoint);
+                        //car[carIndex].transform.rotation = Quaternion.LookRotation(directionToNextPoint);
+
+                        Quaternion targetRotation = Quaternion.LookRotation(directionToNextPoint);
+                        car[carIndex].transform.rotation = Quaternion.Slerp(car[carIndex].transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
                     }
 
-
-                    //car[carIndex].transform.position=  Vector3.MoveTowards(PointsList[carIndex][i], PointsList[carIndex][i +1], moveSpeed);
+                    //car[carIndex].transform.position =  Vector3.MoveTowards(PointsList[carIndex][i], PointsList[carIndex][i +1], moveSpeed);
                     //car[carIndex].transform.position = Vector3.Lerp(PointsList[carIndex][i], PointsList[carIndex][i + 1], moveSpeed);
                     yield return null;
                 }
@@ -172,6 +166,9 @@ public class MultipleDraw : MonoBehaviour
             }
 
         }
+
+        carMoving[carIndex] = false;
+        
     }
 
 
@@ -189,33 +186,37 @@ public class MultipleDraw : MonoBehaviour
 
     private int CheckTheHitRayOnCar()
     {
-        Vector3 mousePosScreen = Input.mousePosition;
-
-        Ray ray = Camera.main.ScreenPointToRay(mousePosScreen);
 
         for (int i = 0; i < car.Length; i++)
         {
-            //Debug.Log("car i = " + i);
-            RaycastHit hitInfo;
 
-            // Use Physics.Raycast to check if the ray hits the current car
-            if (Physics.Raycast(ray, out hitInfo))
+            if (carMoving[i])
             {
-                // Check if the hit object has the "car" tag and is the same as the current car
-                if (hitInfo.transform.CompareTag("car") && hitInfo.transform.gameObject == car[i])
-                {
-                    collidedWithCar = true;
-                    Debug.Log("Collision occurred with car " + i);
-                    return i;
-                }
+                return -1;
             }
+            else
+            {
+                RaycastHit hitInfo;
+                Vector3 mousePosScreen = Input.mousePosition;
+                Ray ray = Camera.main.ScreenPointToRay(mousePosScreen);
+
+                // Use Physics.Raycast to check if the ray hits the current car
+                if (Physics.Raycast(ray, out hitInfo))
+                {
+                    // Check if the hit object has the "car" tag and is the same as the current car
+                    if (hitInfo.transform.CompareTag("car") && hitInfo.transform.gameObject == car[i])
+                    {
+                        collidedWithCar = true;
+                        Debug.Log("Collision occurred with car " + i);
+                        return i;
+                    }
+                }
+
+            }
+
         }
+
         return -1; // Return -1 if no car was hit
     }
 
-
-    private void pauseGame()
-    {
-        Time.timeScale = 0;
-    }
 }
