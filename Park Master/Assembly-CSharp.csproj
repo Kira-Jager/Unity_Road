@@ -57,10 +57,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scrypt\GameManager.cs" />
-    <Compile Include="Assets\Scrypt\Draw.cs" />
+    <Compile Include="Assets\Scrypt\Car.cs" />
+    <Compile Include="Assets\Scrypt\Line.cs" />
     <Compile Include="Assets\Scrypt\LevelManager.cs" />
     <Compile Include="Assets\Scrypt\MultipleDraw.cs" />
-    <Compile Include="Assets\Scrypt\CarCollisionEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

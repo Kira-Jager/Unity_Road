@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 2482866576337117589}
   - component: {fileID: 8321429000780713365}
   - component: {fileID: 178096699747204006}
+  - component: {fileID: 4571865429292856161}
+  - component: {fileID: 693930463031119642}
   m_Layer: 0
   m_Name: car
   m_TagString: car
@@ -215,6 +217,30 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
+--- !u!114 &4571865429292856161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1652543936859280771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f20a21227d7073740a43fc9ecff9cce4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &693930463031119642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1652543936859280771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8c305f85e5fc3b4ca0fd6d6b2a7326c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6602295625273547654
 GameObject:
   m_ObjectHideFlags: 0

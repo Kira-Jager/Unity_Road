@@ -344,10 +344,10 @@
 -r:"Library/Bee/artifacts/1300b0aE.dag/Unity.VSCode.Editor.ref.dll"
 -r:"Library/Bee/artifacts/1300b0aE.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/1300b0aE.dag/UnityEngine.UI.ref.dll"
-"Assets/Scrypt/CarCollisionEvent.cs"
-"Assets/Scrypt/Draw.cs"
+"Assets/Scrypt/Car.cs"
 "Assets/Scrypt/GameManager.cs"
 "Assets/Scrypt/LevelManager.cs"
+"Assets/Scrypt/Line.cs"
 "Assets/Scrypt/MultipleDraw.cs"
 -langversion:9.0
 
