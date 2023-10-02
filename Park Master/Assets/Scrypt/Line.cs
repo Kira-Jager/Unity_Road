@@ -6,7 +6,6 @@ public class Line : MonoBehaviour
 {
     // Start is called before the first frame update
 
-    private Car car;
     private GameManager gameManager;
     
     private LineRenderer lineRenderer;
@@ -18,12 +17,13 @@ public class Line : MonoBehaviour
 
     private float distanceBetweenPoints;
 
-    public void Initialize(GameManager manager, Car car)
+    private bool isDrawing = false;
+
+    public void Initialize(GameManager manager)
     {
         gameManager = manager;
         ground = gameManager.groundLayer;
         distanceBetweenPoints = gameManager.distanceBetweenPoints;
-        this.car = car;
     }
 
 
@@ -31,7 +31,6 @@ public class Line : MonoBehaviour
     void Start()
     {
         lineRenderer = GetComponent<LineRenderer>();
-        car = GetComponent<Car>();
         lineRenderer.enabled = false;
         lineRenderer.startWidth = 3;
         lineRenderer.endWidth = 3;
@@ -44,57 +43,61 @@ public class Line : MonoBehaviour
             return;
         }
 
-        Initialize(gameManager, car);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Time.timeScale != 0)
-        {
-            LineControl();
-        }
-
+        Initialize(gameManager);
     }
 
     private void LineControl()
     {
-        if (Input.GetMouseButtonDown(0))
+      
+    }
+    private void Update()
+    {
+        if(isDrawing)
         {
-            if (car.CheckTheHitRayOnCar())
-            {
-                lineRenderer.enabled = true;
-                lastPoint = GetMouseWorldPosition();
-                Debug.Log("line enabled");
-            }
+            updateDrawing();
         }
-        else if (Input.GetMouseButton(0))
-        {
-           
-            if (car.getcarGetSelected())
+    }
+
+
+    public void startDrawing()
+    {
+        lineRenderer.enabled = true;
+        
+        //clearPath();
+
+        lastPoint = GetMouseWorldPosition();
+        isDrawing = true;
+    }
+
+    public void updateDrawing()
+    {
+       
+            Vector3 mousePoint = GetMouseWorldPosition();
+            if (Vector3.Distance(lastPoint, mousePoint) > distanceBetweenPoints)
             {
-                Vector3 mousePoint = GetMouseWorldPosition();
-                if (Vector3.Distance(lastPoint, mousePoint) > distanceBetweenPoints)
-                {
-                    lastPoint = mousePoint;
-                    lineRenderer.positionCount++;
-                    lineRenderer.SetPosition(lineRenderer.positionCount - 1, lastPoint);
+                lastPoint = mousePoint;
+                lineRenderer.positionCount++;
+                lineRenderer.SetPosition(lineRenderer.positionCount - 1, lastPoint);
 
-                    //gameManager.AddPointToCarPath(car.getCarID(), lastPoint);
-
-                    this.PointsList.Add(mousePoint);
-                }
-                car.setCarHasPath();
+                PointsList.Add(mousePoint);
             }
-        }
+    }
+
+    public void stopDrawing()
+    {
+        isDrawing = false;
     }
 
     public List<Vector3> getCarPath()
     {
         return PointsList;
-        //return gameManager.carPoints[car.getCarID()];
     }
 
+    public void clearPath()
+    {
+        PointsList.Clear();
+        lineRenderer.positionCount = 0;
+    }
     private Vector3 GetMouseWorldPosition()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

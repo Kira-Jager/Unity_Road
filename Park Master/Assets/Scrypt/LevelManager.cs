@@ -26,6 +26,14 @@ public class LevelManager : MonoBehaviour
         canvas.transform.GetChild(1).gameObject.SetActive(true);
     }
 
+    public void retryCanvas()
+    {
+        Invoke("pauseGame", 1f);
+        //pauseGame();
+        canvas.transform.GetChild(2).gameObject.SetActive(true);
+
+    }
+
     public void onClickOnStartButton()
     {
         //Debug.Log("Game start");

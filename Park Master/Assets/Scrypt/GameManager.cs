@@ -1,48 +1,87 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.ConstrainedExecution;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 
 
 public class GameManager : MonoBehaviour
 {
+
     public float speed = 0.1f;
     public float rotationSpeed = 1.0f;
     public float distanceBetweenPoints = 1.0f;
     public LayerMask groundLayer;
+    public bool anyCar = false;
+    public bool carAccident = false;
 
     public GameObject carParent;
     public Dictionary<int, List<Vector3>> carPoints = new Dictionary<int, List<Vector3>>();
 
+    private bool allCarsFinished = true;
+    private LevelManager levelManager;
+
+
+
+
+
     private void Start()
     {
+        levelManager = FindObjectOfType<LevelManager>();
+
         int carID = 0;
 
-        foreach( Transform carTransform  in carParent.transform)
+        foreach ( Transform carTransform  in carParent.transform)
         {
             carTransform.GetComponent<Car>().setCarID(carID);
-            //carPoints[carID] = new List<Vector3>();
             carID++;
         }
     }
 
-/*    public void AddPointToCarPath(int carID, Vector3 point)
+    private void Update()
     {
-        if (carPoints.ContainsKey(carID))
+        if (carAccident)
         {
-            carPoints[carID].Add(point);
+            levelManager.retryCanvas();
+        }
+        
+    }
+    private void OnEnable()
+    {
+        Car.onCarFinish += HandleCarFinish;
+    }
+
+    private void OnDisable()
+    {
+        Car.onCarFinish -= HandleCarFinish;
+
+    }
+
+
+    private void HandleCarFinish()
+    {
+        bool allCarsFinished = true;
+        foreach (Transform carTransform in carParent.transform)
+        {
+            Car car = carTransform.GetComponent<Car>();
+            if (!car.getCarArriveFinish())
+            {
+                allCarsFinished = false;
+                break;
+            }
+        }
+
+        if (allCarsFinished)
+        {
+            ShowWinCanvas();
         }
     }
 
-    public List<Vector3> getCarPath(int carID)
-    {
-        //return PointsList;
-        return carPoints[carID];
-    }
-*/
 
-    private void Update()
+    private void ShowWinCanvas()
     {
-       
+        levelManager.WinCanvas();
     }
 }
