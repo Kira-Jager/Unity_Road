@@ -19,6 +19,7 @@ public class MultipleDraw : MonoBehaviour
     private int carIndex = 0;
 
     private bool collidedWithCar = false;
+    private bool collisionBtwCars = false;
     private bool[] carMoving;
     private bool[] carHasPath;
 
@@ -45,61 +46,90 @@ public class MultipleDraw : MonoBehaviour
         }
     }
 
+    public void setCollisionBtwCars()
+    {
+        this.collisionBtwCars = true;
+    }
+
+    public bool getCollidedWithCar()
+    {
+        return collidedWithCar;
+    }
+    public int getCarIndex()
+    {
+        return carIndex;
+    }
+
     void Update()
     {
         if (Time.timeScale != 0)
         {
-            if (Input.GetMouseButtonDown(0))
+            lineUpdate();
+        }
+
+    }
+
+    private void lineUpdate()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            carIndex = CheckTheHitRayOnCar();
+            if (collidedWithCar && carIndex != -1)
             {
-                carIndex = CheckTheHitRayOnCar();
-                if (collidedWithCar && carIndex != -1)
-                {
-                    lineRenderer[carIndex].enabled = true;
-                    lastPoint = GetMouseWorldPosition();
-                    //lineRenderer.positionCount = 1;
-                    //lineRenderer.SetPosition(0, lastPoint);
-                }
+                lineRenderer[carIndex].enabled = true;
+                lastPoint = GetMouseWorldPosition();
+                //lineRenderer.positionCount = 1;
+                //lineRenderer.SetPosition(0, lastPoint);
             }
+        }
 
-            else if (Input.GetMouseButton(0))
+        else if (Input.GetMouseButton(0))
+        {
+            if (collidedWithCar && carIndex != -1)
             {
-                if (collidedWithCar && carIndex != -1)
+
+                Vector3 mousePoint = GetMouseWorldPosition();
+                if (Vector3.Distance(lastPoint, mousePoint) > distanceBetweenPoints)
                 {
-
-                    Vector3 mousePoint = GetMouseWorldPosition();
-                    if (Vector3.Distance(lastPoint, mousePoint) > distanceBetweenPoints)
-                    {
-                        lastPoint = mousePoint;
-                        lineRenderer[carIndex].positionCount++;
-                        lineRenderer[carIndex].SetPosition(lineRenderer[carIndex].positionCount - 1, lastPoint);
-                        PointsList[carIndex].Add(mousePoint);
-                    }
-
-                    carHasPath[carIndex] = true;
+                    lastPoint = mousePoint;
+                    lineRenderer[carIndex].positionCount++;
+                    lineRenderer[carIndex].SetPosition(lineRenderer[carIndex].positionCount - 1, lastPoint);
+                    PointsList[carIndex].Add(mousePoint);
                 }
+
+                carHasPath[carIndex] = true;
             }
+        }
 
 
-            if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0))
+        {
+            collidedWithCar = false;
+            //MoveCarTowardPath();
+
+            if (carIndex != -1)
             {
-                collidedWithCar = false;
-                //MoveCarTowardPath();
-
-                if (carIndex != -1)
+                for (int i = 0; i < car.Length; i++)
                 {
-                    for (int i = 0; i < car.Length; i++)
+                    if (carHasPath[i])
                     {
-                        if (carHasPath[i])
+                        car[i].gameObject.transform.position = PointsList[i][0];
+                        StartCoroutine(MoveCarTowardPath(i));
+                        if(collidedWithCar == false)
                         {
-                            car[i].gameObject.transform.position = PointsList[i][0];
-                            StartCoroutine(MoveCarTowardPath(i));
+                            carMoving[i] = false;
+                        }
+                        else
+                        {
                             carMoving[i] = true;
                         }
                     }
-                }
 
+                }
             }
+
         }
+
 
     }
 

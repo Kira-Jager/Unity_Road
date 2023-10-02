@@ -8,11 +8,11 @@ public class LevelManager : MonoBehaviour
 {
 
     public Canvas canvas;
-
     private void Start()
     {
         mainMenuCanvas();
     }
+
 
     private void mainMenuCanvas()
     {
@@ -20,9 +20,15 @@ public class LevelManager : MonoBehaviour
         canvas.transform.GetChild(3).gameObject.SetActive(true);
     }
 
+    public void WinCanvas()
+    {
+        pauseGame();
+        canvas.transform.GetChild(1).gameObject.SetActive(true);
+    }
+
     public void onClickOnStartButton()
     {
-        Debug.Log("Game start");
+        //Debug.Log("Game start");
         resumeGame();
         canvas.transform.GetChild(3).gameObject.SetActive(false);
     }

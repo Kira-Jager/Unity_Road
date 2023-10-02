@@ -351,6 +351,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  carParent: {fileID: 2117580190}
 --- !u!1 &899862124
 GameObject:
   m_ObjectHideFlags: 0
@@ -537,7 +538,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1215335118
 Transform:
   m_ObjectHideFlags: 0
@@ -571,6 +572,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 0
+  carParent: {fileID: 0}
 --- !u!1 &1287473986 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1652543936859280771, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
@@ -873,11 +875,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8011995361228127476, guid: 7a9488d73b836874e9a191f6adbbd0ec, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8268551840686881963, guid: 7a9488d73b836874e9a191f6adbbd0ec, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -94.83464
+      value: -146.41237
       objectReference: {fileID: 0}
     - target: {fileID: 8386471066701903155, guid: 7a9488d73b836874e9a191f6adbbd0ec, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -937,6 +939,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2117580191}
     m_Modifications:
+    - target: {fileID: 693930463031119642, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1004302185579066454, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
@@ -988,6 +994,10 @@ PrefabInstance:
     - target: {fileID: 2136064502058798905, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4571865429292856161, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e54c29c5ad585a549a12288b6fc81e69, type: 3}

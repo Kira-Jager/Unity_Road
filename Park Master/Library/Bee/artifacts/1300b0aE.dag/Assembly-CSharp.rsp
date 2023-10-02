@@ -345,6 +345,7 @@
 -r:"Library/Bee/artifacts/1300b0aE.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/1300b0aE.dag/UnityEngine.UI.ref.dll"
 "Assets/Scrypt/Car.cs"
+"Assets/Scrypt/CarCollision.cs"
 "Assets/Scrypt/GameManager.cs"
 "Assets/Scrypt/LevelManager.cs"
 "Assets/Scrypt/Line.cs"

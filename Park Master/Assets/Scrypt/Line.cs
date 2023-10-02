@@ -79,7 +79,10 @@ public class Line : MonoBehaviour
                     lastPoint = mousePoint;
                     lineRenderer.positionCount++;
                     lineRenderer.SetPosition(lineRenderer.positionCount - 1, lastPoint);
-                    PointsList.Add(mousePoint);
+
+                    //gameManager.AddPointToCarPath(car.getCarID(), lastPoint);
+
+                    this.PointsList.Add(mousePoint);
                 }
                 car.setCarHasPath();
             }
@@ -89,6 +92,7 @@ public class Line : MonoBehaviour
     public List<Vector3> getCarPath()
     {
         return PointsList;
+        //return gameManager.carPoints[car.getCarID()];
     }
 
     private Vector3 GetMouseWorldPosition()
