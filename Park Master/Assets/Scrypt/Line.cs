@@ -19,6 +19,8 @@ public class Line : MonoBehaviour
 
     private bool isDrawing = false;
 
+    private Material lineColor;
+
     public void Initialize(GameManager manager)
     {
         gameManager = manager;
@@ -26,7 +28,11 @@ public class Line : MonoBehaviour
         distanceBetweenPoints = gameManager.distanceBetweenPoints;
     }
 
-
+    public void setLineColor(Material lineColor)
+    {
+        this.lineColor = lineColor;
+        lineRenderer.material = lineColor;
+    }
 
     void Start()
     {
@@ -46,10 +52,6 @@ public class Line : MonoBehaviour
         Initialize(gameManager);
     }
 
-    private void LineControl()
-    {
-      
-    }
     private void Update()
     {
         if(isDrawing)

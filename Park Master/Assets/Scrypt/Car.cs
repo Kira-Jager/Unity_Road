@@ -11,15 +11,17 @@ public class Car : MonoBehaviour
     private float speed;
     private float rotationSpeed;
 
-    private GameObject previousCar;
-    private GameObject currentCar;
-
     private bool collidedWithCar = false;
     private bool carMoving = false;
     private bool carCollision = false;
     private bool CarArriveFinish = false;
+    private bool stopCar = false;
+    private Vector3 carInitialPosition;
+
+    Quaternion carInitialRotation;
 
     private int carID = -1;
+    private Material carColor;
 
     public delegate void onCarFinishACtion();
     public static event onCarFinishACtion onCarFinish;
@@ -81,6 +83,9 @@ public class Car : MonoBehaviour
     {
         line = GetComponent<Line>();
 
+        carColor = GetComponent<MeshRenderer>().material;
+
+
         gameManager = FindObjectOfType<GameManager>();
         if (gameManager == null)
         {
@@ -89,6 +94,13 @@ public class Car : MonoBehaviour
         }
 
         Initialize(gameManager, line);
+        line.setLineColor(carColor);
+
+        carInitialPosition = transform.position;
+
+        carInitialRotation = transform.rotation;
+
+
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -112,8 +124,6 @@ public class Car : MonoBehaviour
         }
     }
 
-
-
     private void Update()
     {
         if (Time.timeScale != 0)
@@ -136,65 +146,73 @@ public class Car : MonoBehaviour
     {
         if (CheckTheHitRayOnCar() && Time.timeScale != 0)
         {
+            gameManager.anotherDrawing = true;
             line.startDrawing();
         }
 
     }
     public void OnMouseUp()
     {
-        if(Time.timeScale != 0)
+        if (Time.timeScale != 0)
         {
             line.stopDrawing();
         }
     }
 
-        //StartCoroutine(MoveCarTowardPath());
-    
+    //StartCoroutine(MoveCarTowardPath());
+
     private IEnumerator MoveCarTowardPath()
-    {
-        setCarMoving();
-
-        List<Vector3> carPath = line.getCarPath();
-
-        for (int i = 0; i < line.getCarPath().Count - 1; i++)
+    {   
+        if(stopCar == false)
         {
+            setCarMoving();
 
-            if (collidedWithCar && carCollision == false)
+            List<Vector3> carPath = line.getCarPath();
+
+            for (int i = 0; i < line.getCarPath().Count - 1; i++)
             {
 
-                float distance = Vector3.Distance(carPath[i], carPath[i + 1]);
-
-                float Duration = distance / speed;
-
-                float startTime = Time.time;
-
-
-                while (Time.time - startTime < Duration)
+                if (collidedWithCar && carCollision == false && carMoving)
                 {
-                    float Progress = (Time.time - startTime) / Duration;
 
-                    transform.position = Vector3.Lerp(carPath[i], carPath[i + 1], Progress);
+                    float distance = Vector3.Distance(carPath[i], carPath[i + 1]);
+
+                    float Duration = distance / speed;
+
+                    float startTime = Time.time;
 
 
-                    Vector3 directionToNextPoint = carPath[i + 1] - transform.position;
-
-                    if (directionToNextPoint != Vector3.zero)
+                    while (Time.time - startTime < Duration)
                     {
-                        Quaternion targetRotation = Quaternion.LookRotation(directionToNextPoint);
-                        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+
+                        if (!carMoving) { break; }
+                        float Progress = (Time.time - startTime) / Duration;
+                            
+
+                        transform.position = Vector3.Lerp(carPath[i], carPath[i + 1], Progress);
+
+
+                        Vector3 directionToNextPoint = carPath[i + 1] - transform.position;
+
+                        if (directionToNextPoint != Vector3.zero)
+                        {
+                            Quaternion targetRotation = Quaternion.LookRotation(directionToNextPoint);
+                            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+                        }
+
+                        yield return null;
                     }
 
-                    yield return null;
+
+
+                    //transform.position = carPath[i + 1];
                 }
 
-
-
-                transform.position = carPath[i + 1];
             }
 
+            carMoving = false;
         }
-
-        carMoving = false;
+        
     }
 
     public bool CheckTheHitRayOnCar()
@@ -224,5 +242,33 @@ public class Car : MonoBehaviour
             }
         }
         return true;
+    }
+
+    private void OnEnable()
+    {
+        Reset_Line_CarPos.onClicked += resetCarPos;
+    }
+
+    private void OnDisable()
+    {
+        Reset_Line_CarPos.onClicked -= resetCarPos;
+    }
+
+    private void resetCarPos()
+    {
+        if (carMoving)
+        {
+            //stopCar = true;
+            resetCar();
+            line.clearPath();
+        }
+
+    }
+
+    public void resetCar()
+    {
+        carMoving = false;
+        transform.position = carInitialPosition;
+        transform.rotation = carInitialRotation;
     }
 }

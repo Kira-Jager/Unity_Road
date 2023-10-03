@@ -16,16 +16,13 @@ public class GameManager : MonoBehaviour
     public LayerMask groundLayer;
     public bool anyCar = false;
     public bool carAccident = false;
+    public bool anotherDrawing = false;
 
     public GameObject carParent;
     public Dictionary<int, List<Vector3>> carPoints = new Dictionary<int, List<Vector3>>();
 
     private bool allCarsFinished = true;
     private LevelManager levelManager;
-
-
-
-
 
     private void Start()
     {
@@ -46,6 +43,14 @@ public class GameManager : MonoBehaviour
         {
             levelManager.retryCanvas();
         }
+        if (anotherDrawing)
+        {
+            foreach (Transform carTransform in carParent.transform)
+            {
+                carTransform.GetComponent<Car>().resetCar();
+            }
+            anotherDrawing = false;
+        }
         
     }
     private void OnEnable()
@@ -58,7 +63,6 @@ public class GameManager : MonoBehaviour
         Car.onCarFinish -= HandleCarFinish;
 
     }
-
 
     private void HandleCarFinish()
     {
@@ -78,7 +82,6 @@ public class GameManager : MonoBehaviour
             ShowWinCanvas();
         }
     }
-
 
     private void ShowWinCanvas()
     {
