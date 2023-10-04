@@ -6,13 +6,13 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
-
+    private bool win = false;
+    private bool lose = false;
     public Canvas canvas;
     private void Start()
     {
         mainMenuCanvas();
     }
-
 
     private void mainMenuCanvas()
     {
@@ -22,16 +22,26 @@ public class LevelManager : MonoBehaviour
 
     public void WinCanvas()
     {
-        pauseGame();
+        Invoke("showWinCanvas", .8f);
+        Invoke("pauseGame", 1f);
+    }
+
+    private void showWinCanvas()
+    {
         canvas.transform.GetChild(1).gameObject.SetActive(true);
     }
 
     public void retryCanvas()
     {
-        Invoke("pauseGame", 1f);
+        Invoke("showRetryCanvas", .8f);
         //pauseGame();
-        canvas.transform.GetChild(2).gameObject.SetActive(true);
+        Invoke("pauseGame", 1f);
 
+    }
+
+    private void showRetryCanvas()
+    {
+        canvas.transform.GetChild(2).gameObject.SetActive(true);
     }
 
     public void onClickOnStartButton()

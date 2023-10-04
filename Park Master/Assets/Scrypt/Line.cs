@@ -90,6 +90,16 @@ public class Line : MonoBehaviour
         isDrawing = false;
     }
 
+    public bool pathExist()
+    {
+        if (PointsList.Count > 0)
+        {
+            Debug.Log("path exist");
+            return true;
+        }
+        return false;
+    }
+
     public List<Vector3> getCarPath()
     {
         return PointsList;
@@ -108,7 +118,7 @@ public class Line : MonoBehaviour
         {
             return hit.point;
         }
-        Debug.Log(hit.point);
+        //Debug.Log(hit.point);
         return lastPoint;
     }
 }

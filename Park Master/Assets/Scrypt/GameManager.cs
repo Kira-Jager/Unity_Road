@@ -17,12 +17,16 @@ public class GameManager : MonoBehaviour
     public bool anyCar = false;
     public bool carAccident = false;
     public bool anotherDrawing = false;
+    public static bool disableObject = false;
 
     public GameObject carParent;
     public Dictionary<int, List<Vector3>> carPoints = new Dictionary<int, List<Vector3>>();
 
     private bool allCarsFinished = true;
     private LevelManager levelManager;
+    private GameObject confettiObject;
+    private ParticleSystem confetti;
+
 
     private void Start()
     {
@@ -35,6 +39,12 @@ public class GameManager : MonoBehaviour
             carTransform.GetComponent<Car>().setCarID(carID);
             carID++;
         }
+
+        confettiObject = transform.GetChild(0).gameObject;
+
+        confetti = confettiObject.GetComponent<ParticleSystem>();
+        confetti.Stop();
+
     }
 
     private void Update()
@@ -61,7 +71,6 @@ public class GameManager : MonoBehaviour
     private void OnDisable()
     {
         Car.onCarFinish -= HandleCarFinish;
-
     }
 
     private void HandleCarFinish()
@@ -79,12 +88,15 @@ public class GameManager : MonoBehaviour
 
         if (allCarsFinished)
         {
-            ShowWinCanvas();
+            Invoke("ShowWinCanvas",.4f) ;
         }
     }
 
     private void ShowWinCanvas()
     {
+
+        disableObject = true;
+        confetti.Play();
         levelManager.WinCanvas();
     }
 }

@@ -128,14 +128,18 @@ public class Car : MonoBehaviour
     {
         if (Time.timeScale != 0)
         {
-
+            
             if (Input.GetMouseButtonUp(0) && !carMoving)
             {
-                if (CheckTheHitRayOnCar())
+                //Debug.Log(transform.name + ".CarMoving " + carMoving);
+                //Debug.Log(transform.name+ ".CollideWithCar " + collidedWithCar);
+                CheckTheHitRayOnCar();
+                if ( collidedWithCar )
                 {
-                    setCarCollisionWithCar(false);
-                    Debug.Log("Car get hit");
                     StartCoroutine(MoveCarTowardPath());
+                    
+                    //setCarCollisionWithCar(false);
+                    //Debug.Log("Car get hit");
                 }
             }
         }
@@ -211,6 +215,7 @@ public class Car : MonoBehaviour
             }
 
             carMoving = false;
+            //collidedWithCar = false;
         }
         
     }
@@ -235,13 +240,17 @@ public class Car : MonoBehaviour
                 {
                     collidedWithCar = true;
 
-                    /*  Debug.Log("Hit arrives on car " + transform.name);
-                      Debug.Log("Car ID " + this.getCarID());*/
+                    Debug.Log("Hit on car");
                     return true;
                 }
+                /*else
+                {
+                    collidedWithCar = false;
+                }*/
             }
+            return false;
         }
-        return true;
+        
     }
 
     private void OnEnable()
@@ -256,7 +265,7 @@ public class Car : MonoBehaviour
 
     private void resetCarPos()
     {
-        if (carMoving)
+        //if (carMoving)
         {
             //stopCar = true;
             resetCar();
