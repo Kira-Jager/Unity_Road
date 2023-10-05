@@ -23,7 +23,7 @@ public class LevelManager : MonoBehaviour
     public void WinCanvas()
     {
         Invoke("showWinCanvas", .8f);
-        Invoke("pauseGame", 1f);
+        Invoke("pauseGame", .8f);
     }
 
     private void showWinCanvas()
@@ -35,7 +35,7 @@ public class LevelManager : MonoBehaviour
     {
         Invoke("showRetryCanvas", .8f);
         //pauseGame();
-        Invoke("pauseGame", 1f);
+        Invoke("pauseGame", .8f);
 
     }
 

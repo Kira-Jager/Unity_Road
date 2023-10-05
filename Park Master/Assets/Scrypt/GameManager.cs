@@ -13,28 +13,33 @@ public class GameManager : MonoBehaviour
     public float speed = 0.1f;
     public float rotationSpeed = 1.0f;
     public float distanceBetweenPoints = 1.0f;
-    public LayerMask groundLayer;
+    public float forceMultiplier = 1.0f;
     public bool anyCar = false;
     public bool carAccident = false;
     public bool anotherDrawing = false;
+    public bool setFirstHitForEachCar = false;
     public static bool disableObject = false;
 
+
+    public LayerMask groundLayer;
     public GameObject carParent;
     public Dictionary<int, List<Vector3>> carPoints = new Dictionary<int, List<Vector3>>();
 
-    private bool allCarsFinished = true;
     private LevelManager levelManager;
     private GameObject confettiObject;
     private ParticleSystem confetti;
 
+    private bool allCarsFinished = true;
+    private bool allCarsHavePaths = false;
 
     private void Start()
     {
         levelManager = FindObjectOfType<LevelManager>();
 
+
         int carID = 0;
 
-        foreach ( Transform carTransform  in carParent.transform)
+        foreach (Transform carTransform in carParent.transform)
         {
             carTransform.GetComponent<Car>().setCarID(carID);
             carID++;
@@ -61,7 +66,55 @@ public class GameManager : MonoBehaviour
             }
             anotherDrawing = false;
         }
-        
+
+        allCarsHavePaths = true;
+
+        for (int i = 0; i < carParent.transform.childCount; i++)
+        {
+            Transform carTransform = carParent.transform.GetChild(i);
+            if (carTransform.GetComponent<Line>().pathExist() == false)
+            {
+                allCarsHavePaths = false;
+                break;
+            }
+        }
+
+        if (allCarsHavePaths == true)
+        {
+            for (int i = 0; i < carParent.transform.childCount; i++)
+            {
+                Transform carTransform = carParent.transform.GetChild(i);
+                carTransform.GetComponent<Car>().collidedWithCar = true;
+                if (setFirstHitForEachCar)
+                {
+                    carTransform.GetComponent<Car>().firstHitOnCar = true;
+                }
+
+
+            }
+        }
+
+        /*
+                foreach (Transform carTransform in carParent.transform)
+                 {
+                     if (carTransform.GetComponent<Line>().pathExist() == false)
+                    {
+                        break;
+                    }else
+                     {
+                         allCarsHavePaths = true;
+                        Debug.Log("all cars have path");
+                     }
+
+                 }
+                 if (!allCarsHavePaths)
+                 {
+                     foreach (Transform carTransform in carParent.transform)
+                     {
+                         carTransform.GetComponent<Car>().collidedWithCar = true;
+                     }
+                 }*/
+
     }
     private void OnEnable()
     {
@@ -88,7 +141,7 @@ public class GameManager : MonoBehaviour
 
         if (allCarsFinished)
         {
-            Invoke("ShowWinCanvas",.4f) ;
+            Invoke("ShowWinCanvas", .4f);
         }
     }
 

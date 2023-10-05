@@ -94,7 +94,7 @@ public class Line : MonoBehaviour
     {
         if (PointsList.Count > 0)
         {
-            Debug.Log("path exist");
+            //Debug.Log("path exist");
             return true;
         }
         return false;

@@ -6,7 +6,7 @@ public class Reset_Line_CarPos : MonoBehaviour
 {
     private bool resetCarPos = false;
     public delegate void onClickAction();
-    public static event onClickAction onClicked;
+    public event onClickAction onClicked;
 
     private GameManager gameManager;
 
@@ -50,9 +50,6 @@ public class Reset_Line_CarPos : MonoBehaviour
             resetCarPos = true;
             onClicked?.Invoke();
         }
-
-       
-        
     }
 
     private void disableObject()

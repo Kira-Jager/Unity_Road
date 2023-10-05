@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -10,21 +11,27 @@ public class Car : MonoBehaviour
 
     private float speed;
     private float rotationSpeed;
+    private float forceMultiplier;
 
-    private bool collidedWithCar = false;
     private bool carMoving = false;
     private bool carCollision = false;
     private bool CarArriveFinish = false;
     private bool stopCar = false;
     private Vector3 carInitialPosition;
 
-    Quaternion carInitialRotation;
+    private Quaternion carInitialRotation;
 
     private int carID = -1;
     private Material carColor;
 
+    public GameObject resetCarPosObject;
+    public bool firstHitOnCar = false;
+    public bool collidedWithCar = false;
+
+
     public delegate void onCarFinishACtion();
     public static event onCarFinishACtion onCarFinish;
+
 
 
     public void Initialize(GameManager manager, Line line)
@@ -33,6 +40,7 @@ public class Car : MonoBehaviour
         this.line = line;
         speed = gameManager.speed;
         rotationSpeed = gameManager.rotationSpeed;
+        forceMultiplier = gameManager.forceMultiplier;
     }
 
     public void setCarID(int carID)
@@ -87,6 +95,7 @@ public class Car : MonoBehaviour
 
 
         gameManager = FindObjectOfType<GameManager>();
+
         if (gameManager == null)
         {
             Debug.LogError("GameManager not found!");
@@ -100,7 +109,6 @@ public class Car : MonoBehaviour
 
         carInitialRotation = transform.rotation;
 
-
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -109,10 +117,24 @@ public class Car : MonoBehaviour
         {
             Debug.Log("car collision");
             setCarCollisionWithCar(true);
+            Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
+
+            // Check if the Rigidbody component exists
+            if (rb != null)
+            {
+                // Add force to the car in the direction of the collision
+                Vector3 force = collision.contacts[0].normal * -1;
+                rb.AddForce(force * forceMultiplier, ForceMode.Impulse);
+            }
         }
         if (collision.gameObject.CompareTag("Finish"))
         {
-            setCarArriveFinish(true);
+            Color finishColor = collision.gameObject.GetComponent<MeshRenderer>().materials[0].color;
+
+            if (carColor.color == finishColor)
+            {
+                setCarArriveFinish(true);
+            }
         }
     }
 
@@ -133,8 +155,8 @@ public class Car : MonoBehaviour
             {
                 //Debug.Log(transform.name + ".CarMoving " + carMoving);
                 //Debug.Log(transform.name+ ".CollideWithCar " + collidedWithCar);
-                CheckTheHitRayOnCar();
-                if ( collidedWithCar )
+               
+                if (collidedWithCar && firstHitOnCar)
                 {
                     StartCoroutine(MoveCarTowardPath());
                     
@@ -152,6 +174,8 @@ public class Car : MonoBehaviour
         {
             gameManager.anotherDrawing = true;
             line.startDrawing();
+            gameManager.setFirstHitForEachCar = true;
+            firstHitOnCar = true;
         }
 
     }
@@ -215,9 +239,12 @@ public class Car : MonoBehaviour
             }
 
             carMoving = false;
-            //collidedWithCar = false;
+            collidedWithCar = false;
+            firstHitOnCar = false;
+            gameManager.setFirstHitForEachCar = false;
+
         }
-        
+
     }
 
     public bool CheckTheHitRayOnCar()
@@ -236,7 +263,7 @@ public class Car : MonoBehaviour
             if (Physics.Raycast(ray, out hitInfo))
             {
                 // Check if the hit object has the "car" tag and is the same as the current car
-                if (hitInfo.transform.CompareTag("car") && hitInfo.transform == this.transform)
+                if (hitInfo.transform.CompareTag("car")  )
                 {
                     collidedWithCar = true;
 
@@ -255,12 +282,14 @@ public class Car : MonoBehaviour
 
     private void OnEnable()
     {
-        Reset_Line_CarPos.onClicked += resetCarPos;
+        if (resetCarPosObject != null)
+        resetCarPosObject.gameObject.GetComponent<Reset_Line_CarPos>().onClicked += resetCarPos;
     }
 
     private void OnDisable()
     {
-        Reset_Line_CarPos.onClicked -= resetCarPos;
+        if(resetCarPosObject != null)
+        resetCarPosObject.gameObject.GetComponent<Reset_Line_CarPos>().onClicked -= resetCarPos;
     }
 
     private void resetCarPos()
