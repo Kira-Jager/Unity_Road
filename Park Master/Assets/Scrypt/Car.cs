@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -17,11 +18,14 @@ public class Car : MonoBehaviour
     private bool carCollision = false;
     private bool CarArriveFinish = false;
     private bool stopCar = false;
+    private bool breakHappen = false;
+
     private Vector3 carInitialPosition;
 
     private Quaternion carInitialRotation;
 
     private int carID = -1;
+
     private Material carColor;
 
     public GameObject resetCarPosObject;
@@ -150,20 +154,27 @@ public class Car : MonoBehaviour
     {
         if (Time.timeScale != 0)
         {
-            
+            if (breakHappen == true)
+            {
+                setCarMovBoolean(true);
+            }
+
             if (Input.GetMouseButtonUp(0) && !carMoving)
             {
                 //Debug.Log(transform.name + ".CarMoving " + carMoving);
                 //Debug.Log(transform.name+ ".CollideWithCar " + collidedWithCar);
-               
+
                 if (collidedWithCar && firstHitOnCar)
                 {
                     StartCoroutine(MoveCarTowardPath());
-                    
+
                     //setCarCollisionWithCar(false);
                     //Debug.Log("Car get hit");
                 }
+                breakHappen = false;
+
             }
+
         }
 
     }
@@ -172,10 +183,12 @@ public class Car : MonoBehaviour
     {
         if (CheckTheHitRayOnCar() && Time.timeScale != 0)
         {
-            gameManager.anotherDrawing = true;
             line.startDrawing();
+            gameManager.anotherDrawing = true;
             gameManager.setFirstHitForEachCar = true;
             firstHitOnCar = true;
+
+
         }
 
     }
@@ -190,8 +203,8 @@ public class Car : MonoBehaviour
     //StartCoroutine(MoveCarTowardPath());
 
     private IEnumerator MoveCarTowardPath()
-    {   
-        if(stopCar == false)
+    {
+        if (stopCar == false)
         {
             setCarMoving();
 
@@ -213,9 +226,12 @@ public class Car : MonoBehaviour
                     while (Time.time - startTime < Duration)
                     {
 
-                        if (!carMoving) { break; }
+                        if (!carMoving)
+                        {
+                            break;
+                        }
                         float Progress = (Time.time - startTime) / Duration;
-                            
+
 
                         transform.position = Vector3.Lerp(carPath[i], carPath[i + 1], Progress);
 
@@ -237,14 +253,21 @@ public class Car : MonoBehaviour
                 }
 
             }
-
             carMoving = false;
-            collidedWithCar = false;
-            firstHitOnCar = false;
-            gameManager.setFirstHitForEachCar = false;
+
+            setCarMovBoolean(false);
+
+
 
         }
 
+    }
+
+    private void setCarMovBoolean(bool boolean)
+    {
+        collidedWithCar = boolean;
+        firstHitOnCar = boolean;
+        gameManager.setFirstHitForEachCar = boolean;
     }
 
     public bool CheckTheHitRayOnCar()
@@ -263,7 +286,7 @@ public class Car : MonoBehaviour
             if (Physics.Raycast(ray, out hitInfo))
             {
                 // Check if the hit object has the "car" tag and is the same as the current car
-                if (hitInfo.transform.CompareTag("car")  )
+                if (hitInfo.transform.CompareTag("car"))
                 {
                     collidedWithCar = true;
 
@@ -277,19 +300,19 @@ public class Car : MonoBehaviour
             }
             return false;
         }
-        
+
     }
 
     private void OnEnable()
     {
         if (resetCarPosObject != null)
-        resetCarPosObject.gameObject.GetComponent<Reset_Line_CarPos>().onClicked += resetCarPos;
+            resetCarPosObject.gameObject.GetComponent<Reset_Line_CarPos>().onClicked += resetCarPos;
     }
 
     private void OnDisable()
     {
-        if(resetCarPosObject != null)
-        resetCarPosObject.gameObject.GetComponent<Reset_Line_CarPos>().onClicked -= resetCarPos;
+        if (resetCarPosObject != null)
+            resetCarPosObject.gameObject.GetComponent<Reset_Line_CarPos>().onClicked -= resetCarPos;
     }
 
     private void resetCarPos()
@@ -305,7 +328,10 @@ public class Car : MonoBehaviour
 
     public void resetCar()
     {
+
+        Debug.Log("Car reset");
         carMoving = false;
+        breakHappen = true;
         transform.position = carInitialPosition;
         transform.rotation = carInitialRotation;
     }

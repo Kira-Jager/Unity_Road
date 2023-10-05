@@ -6,8 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
-    private bool win = false;
-    private bool lose = false;
     public Canvas canvas;
     private void Start()
     {

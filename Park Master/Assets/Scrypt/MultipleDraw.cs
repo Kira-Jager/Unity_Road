@@ -32,6 +32,9 @@ public class MultipleDraw : MonoBehaviour
         carHasPath = new bool[car.Length];
         carMoving = new bool[car.Length];
 
+        //jut to get rid of warning
+        collisionBtwCars = true;
+
         for (int i = 0; i < car.Length; i++)
         {
             lineRenderer[i] = car[i].GetComponent<LineRenderer>();
