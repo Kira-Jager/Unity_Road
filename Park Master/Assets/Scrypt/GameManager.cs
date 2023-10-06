@@ -10,7 +10,7 @@ using UnityEngine.Events;
 public class GameManager : MonoBehaviour
 {
 
-    public float speed = 0.1f;
+    public float speed = 0.1f; 
     public float rotationSpeed = 1.0f;
     public float distanceBetweenPoints = 1.0f;
     public float forceMultiplier = 1.0f;
@@ -27,7 +27,9 @@ public class GameManager : MonoBehaviour
 
     private LevelManager levelManager;
     private GameObject confettiObject;
+    private GameObject confettiObject2;
     private ParticleSystem confetti;
+    private ParticleSystem confetti2;
 
     private bool allCarsFinished = true;
     private bool allCarsHavePaths = false;
@@ -46,9 +48,12 @@ public class GameManager : MonoBehaviour
         }
 
         confettiObject = transform.GetChild(0).gameObject;
+        confettiObject2 = transform.GetChild(1).gameObject;
 
         confetti = confettiObject.GetComponent<ParticleSystem>();
         confetti.Stop();
+        confetti2 = confettiObject2.GetComponent<ParticleSystem>();
+        confetti2.Stop();
 
     }
 
@@ -150,6 +155,8 @@ public class GameManager : MonoBehaviour
 
         disableObject = true;
         confetti.Play();
+        confetti2.Play();
+
         levelManager.WinCanvas();
     }
 }

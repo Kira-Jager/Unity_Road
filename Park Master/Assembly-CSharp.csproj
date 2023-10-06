@@ -63,6 +63,7 @@
     <Compile Include="Assets\Scrypt\CarCollision.cs" />
     <Compile Include="Assets\Scrypt\LevelManager.cs" />
     <Compile Include="Assets\Scrypt\MultipleDraw.cs" />
+    <Compile Include="Assets\Scrypt\ParticleGravity.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

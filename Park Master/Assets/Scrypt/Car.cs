@@ -27,8 +27,20 @@ public class Car : MonoBehaviour
     private int carID = -1;
 
     private Material carColor;
+    private MeshRenderer reestObjectMeshRenderer;
+
+    private MeshRenderer carFinishAnimObjectMeshRenderer;
+
+    private Animation reestObjectAnimation;
+
+    private Animation carFinishAnim;
 
     public GameObject resetCarPosObject;
+
+    public GameObject resetLineAnimObject;
+
+    public GameObject carFinishAnimObject;
+
     public bool firstHitOnCar = false;
     public bool collidedWithCar = false;
 
@@ -97,6 +109,16 @@ public class Car : MonoBehaviour
 
         carColor = GetComponent<MeshRenderer>().material;
 
+        reestObjectMeshRenderer = resetLineAnimObject.gameObject.transform.GetChild(1).GetComponent<MeshRenderer>();
+        reestObjectAnimation = resetLineAnimObject.gameObject.GetComponent<Animation>();
+
+
+        carFinishAnimObjectMeshRenderer = carFinishAnimObject.gameObject.transform.GetChild(1).GetComponent<MeshRenderer>();
+        carFinishAnim = carFinishAnimObject.gameObject.GetComponent<Animation>();
+
+  
+
+      
 
         gameManager = FindObjectOfType<GameManager>();
 
@@ -112,6 +134,15 @@ public class Car : MonoBehaviour
         carInitialPosition = transform.position;
 
         carInitialRotation = transform.rotation;
+
+        resetLineAnimObject.gameObject.SetActive(false);
+        reestObjectMeshRenderer.material = carColor;
+        reestObjectAnimation.Stop();
+
+        carFinishAnimObject.gameObject.SetActive(false);
+        carFinishAnimObjectMeshRenderer.material = carColor;
+        carFinishAnim.Stop();
+
 
     }
 
@@ -137,15 +168,24 @@ public class Car : MonoBehaviour
 
             if (carColor.color == finishColor)
             {
+                carFinishAnimObject.gameObject.SetActive(true);
+                carFinishAnim.Play();
                 setCarArriveFinish(true);
+                Invoke("disableAnimation",.5f);
             }
         }
+    }
+
+    private void disableAnimation()
+    {
+        carFinishAnimObject.gameObject.SetActive(false);
     }
 
     private void OnCollisionExit(Collision collision)
     {
         if (collision.gameObject.CompareTag("Finish"))
         {
+            disableAnimation();
             setCarArriveFinish(false);
         }
     }
@@ -175,6 +215,12 @@ public class Car : MonoBehaviour
 
             }
 
+        }
+
+        if(carMoving == true)
+        {
+            resetLineAnimObject.gameObject.SetActive(true);
+            reestObjectAnimation.Play();
         }
 
     }
@@ -257,8 +303,6 @@ public class Car : MonoBehaviour
 
             setCarMovBoolean(false);
 
-
-
         }
 
     }
@@ -329,9 +373,13 @@ public class Car : MonoBehaviour
     public void resetCar()
     {
 
-        Debug.Log("Car reset");
+        //Debug.Log("Car reset");
         carMoving = false;
         breakHappen = true;
+
+        resetLineAnimObject.gameObject.SetActive(false);
+        reestObjectAnimation.Stop();
+
         transform.position = carInitialPosition;
         transform.rotation = carInitialRotation;
     }

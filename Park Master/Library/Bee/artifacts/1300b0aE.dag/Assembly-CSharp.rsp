@@ -350,6 +350,7 @@
 "Assets/Scrypt/LevelManager.cs"
 "Assets/Scrypt/Line.cs"
 "Assets/Scrypt/MultipleDraw.cs"
+"Assets/Scrypt/ParticleGravity.cs"
 "Assets/Scrypt/Reset_Line_CarPos.cs"
 -langversion:9.0
 
