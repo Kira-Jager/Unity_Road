@@ -14,14 +14,24 @@ public class GameManager : MonoBehaviour
     public float rotationSpeed = 1.0f;
     public float distanceBetweenPoints = 1.0f;
     public float forceMultiplier = 1.0f;
+    public float torqueMultiplier = 1.0f;
+    public float lineWidth = 2.0f;
     public bool anyCar = false;
     public bool carAccident = false;
     public bool anotherDrawing = false;
     public bool setFirstHitForEachCar = false;
     public static bool disableObject = false;
 
+    public AudioSource CarAudio;
+    public AudioClip carMovingAudio;
+    public AudioClip carCollisionAudio;
+    public AudioClip carWinAudio;
+
+
 
     public LayerMask groundLayer;
+    public LayerMask stopDraw;
+
     public GameObject carParent;
     public Dictionary<int, List<Vector3>> carPoints = new Dictionary<int, List<Vector3>>();
 
@@ -61,7 +71,7 @@ public class GameManager : MonoBehaviour
     {
         if (carAccident)
         {
-            levelManager.retryCanvas();
+            Invoke("retryLevel",1f);
         }
         if (anotherDrawing)
         {
@@ -99,28 +109,13 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        /*
-                foreach (Transform carTransform in carParent.transform)
-                 {
-                     if (carTransform.GetComponent<Line>().pathExist() == false)
-                    {
-                        break;
-                    }else
-                     {
-                         allCarsHavePaths = true;
-                        Debug.Log("all cars have path");
-                     }
-
-                 }
-                 if (!allCarsHavePaths)
-                 {
-                     foreach (Transform carTransform in carParent.transform)
-                     {
-                         carTransform.GetComponent<Car>().collidedWithCar = true;
-                     }
-                 }*/
-
     }
+
+    private void retryLevel()
+    {
+        levelManager.retryCanvas();
+    }
+
     private void OnEnable()
     {
         Car.onCarFinish += HandleCarFinish;

@@ -13,40 +13,41 @@ public class Car : MonoBehaviour
     private float speed;
     private float rotationSpeed;
     private float forceMultiplier;
+    private float torqueMultiplier;
 
     private bool carMoving = false;
     private bool carCollision = false;
     private bool CarArriveFinish = false;
     private bool stopCar = false;
     private bool breakHappen = false;
+    private bool once = false;
 
     private Vector3 carInitialPosition;
-
     private Quaternion carInitialRotation;
 
     private int carID = -1;
-
     private Material carColor;
-    private MeshRenderer reestObjectMeshRenderer;
 
+    private MeshRenderer reestObjectMeshRenderer;
     private MeshRenderer carFinishAnimObjectMeshRenderer;
 
     private Animation reestObjectAnimation;
-
     private Animation carFinishAnim;
 
+    private AudioSource CarAudio;
+    private AudioClip carMovingAudio;
+    private AudioClip carCollisionAudio;
+    private AudioClip carWinAudio;
+
     public GameObject resetCarPosObject;
-
     public GameObject resetLineAnimObject;
-
     public GameObject carFinishAnimObject;
-
     public bool firstHitOnCar = false;
     public bool collidedWithCar = false;
-
-
+    public bool audioPlaying = false;
     public delegate void onCarFinishACtion();
     public static event onCarFinishACtion onCarFinish;
+
 
 
 
@@ -57,6 +58,10 @@ public class Car : MonoBehaviour
         speed = gameManager.speed;
         rotationSpeed = gameManager.rotationSpeed;
         forceMultiplier = gameManager.forceMultiplier;
+        torqueMultiplier = gameManager.torqueMultiplier;
+        carWinAudio = gameManager.carWinAudio;
+        carMovingAudio = gameManager.carMovingAudio;
+        carCollisionAudio = gameManager.carCollisionAudio;
     }
 
     public void setCarID(int carID)
@@ -116,10 +121,6 @@ public class Car : MonoBehaviour
         carFinishAnimObjectMeshRenderer = carFinishAnimObject.gameObject.transform.GetChild(1).GetComponent<MeshRenderer>();
         carFinishAnim = carFinishAnimObject.gameObject.GetComponent<Animation>();
 
-  
-
-      
-
         gameManager = FindObjectOfType<GameManager>();
 
         if (gameManager == null)
@@ -142,7 +143,8 @@ public class Car : MonoBehaviour
         carFinishAnimObject.gameObject.SetActive(false);
         carFinishAnimObjectMeshRenderer.material = carColor;
         carFinishAnim.Stop();
-
+        CarAudio = GetComponent<AudioSource>();
+        CarAudio.Stop();
 
     }
 
@@ -150,30 +152,97 @@ public class Car : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("car"))
         {
-            Debug.Log("car collision");
-            setCarCollisionWithCar(true);
-            Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
+            //CarAudio.Stop();
+            gameManager.CarAudio.PlayOneShot(carCollisionAudio,.8f);
 
-            // Check if the Rigidbody component exists
-            if (rb != null)
-            {
-                // Add force to the car in the direction of the collision
-                Vector3 force = collision.contacts[0].normal * -1;
-                rb.AddForce(force * forceMultiplier, ForceMode.Impulse);
-            }
+            // = true;
+
+            Debug.Log("car collision");
+            carAccident(collision);
+            setCarCollisionWithCar(true);
         }
-        if (collision.gameObject.CompareTag("Finish"))
+    }
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        //Invoke("delaySetKinematic", 0.02f);
+
+        setKinematic(true);
+
+
+        carWinCondition(other);
+    }
+
+        private void delaySetKinematic()
         {
-            Color finishColor = collision.gameObject.GetComponent<MeshRenderer>().materials[0].color;
+             setKinematic(true);
+        }
+
+    private void setKinematic(bool boolean)
+    {
+        GetComponent<Rigidbody>().isKinematic = boolean;
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.CompareTag("Finish"))
+        {
+            disableAnimation();
+            setCarArriveFinish(false);
+        }
+    }
+
+    private void carWinCondition(Collider other)
+    {
+        once = true;
+        if (other.gameObject.CompareTag("Finish"))
+        {
+            Color finishColor = other.gameObject.GetComponent<MeshRenderer>().materials[0].color;
+
+            Debug.Log("Inside Once");
 
             if (carColor.color == finishColor)
             {
+                CarAudio.PlayOneShot(carWinAudio, 1f);
                 carFinishAnimObject.gameObject.SetActive(true);
                 carFinishAnim.Play();
+
+
                 setCarArriveFinish(true);
-                Invoke("disableAnimation",.5f);
+                Invoke("disableAnimation", .8f);
             }
+
+
+            if (once )
+            {
+            }
+            once = false;
         }
+    }
+
+    private void carAccident(Collision collision)
+    {
+        Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
+        float random = UnityEngine.Random.Range(9f, 10f); ;
+        resetCarPosObject.gameObject.SetActive(false);
+
+        // Check if the Rigidbody component exists
+        if (rb != null)
+        {
+            // Add force to the car in the direction of the collision
+            Vector3 force = collision.contacts[0].normal * random * -1;
+
+            rb.AddForce(force * forceMultiplier, ForceMode.Force);
+
+            // Add some torque for a spinning effect
+            rb.AddTorque(force * torqueMultiplier);
+        }
+
+        GetComponent<BoxCollider>().enabled = false;
+        //CarAudio.Stop();
+
+
     }
 
     private void disableAnimation()
@@ -181,15 +250,7 @@ public class Car : MonoBehaviour
         carFinishAnimObject.gameObject.SetActive(false);
     }
 
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Finish"))
-        {
-            disableAnimation();
-            setCarArriveFinish(false);
-        }
-    }
-
+   
     private void Update()
     {
         if (Time.timeScale != 0)
@@ -197,6 +258,10 @@ public class Car : MonoBehaviour
             if (breakHappen == true)
             {
                 setCarMovBoolean(true);
+            }
+            if (Input.GetMouseButtonDown(0) && collidedWithCar)
+            {
+                setKinematic(false);
             }
 
             if (Input.GetMouseButtonUp(0) && !carMoving)
@@ -206,6 +271,8 @@ public class Car : MonoBehaviour
 
                 if (collidedWithCar && firstHitOnCar)
                 {
+                    setKinematic(false);
+
                     StartCoroutine(MoveCarTowardPath());
 
                     //setCarCollisionWithCar(false);
@@ -233,6 +300,7 @@ public class Car : MonoBehaviour
             gameManager.anotherDrawing = true;
             gameManager.setFirstHitForEachCar = true;
             firstHitOnCar = true;
+            once = true;
 
 
         }
@@ -254,7 +322,13 @@ public class Car : MonoBehaviour
         {
             setCarMoving();
 
-            List<Vector3> carPath = line.getCarPath();
+            audioPlaying = true;
+            CarAudio.PlayOneShot(carMovingAudio, 1f);
+
+
+           
+
+                List<Vector3> carPath = line.getCarPath();
 
             for (int i = 0; i < line.getCarPath().Count - 1; i++)
             {
@@ -271,6 +345,12 @@ public class Car : MonoBehaviour
 
                     while (Time.time - startTime < Duration)
                     {
+
+                        if (CarAudio != null && !CarAudio.isPlaying)
+                        {
+                            // Play the carMovingAudio clip
+                            CarAudio.PlayOneShot(carMovingAudio, 1f);
+                        }
 
                         if (!carMoving)
                         {
@@ -293,15 +373,15 @@ public class Car : MonoBehaviour
                         yield return null;
                     }
 
-
-
                     //transform.position = carPath[i + 1];
                 }
 
             }
             carMoving = false;
-
+            CarAudio.Stop();
+            
             setCarMovBoolean(false);
+
 
         }
 

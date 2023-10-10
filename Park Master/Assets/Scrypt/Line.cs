@@ -13,9 +13,12 @@ public class Line : MonoBehaviour
     private Vector3 lastPoint;
 
     private LayerMask ground;
+    private LayerMask stopDraw;
 
 
     private float distanceBetweenPoints;
+    private float lineWidth;
+
 
     private bool isDrawing = false;
 
@@ -25,22 +28,21 @@ public class Line : MonoBehaviour
     {
         gameManager = manager;
         ground = gameManager.groundLayer;
+        stopDraw = gameManager.stopDraw;
+        lineWidth = gameManager.lineWidth;
         distanceBetweenPoints = gameManager.distanceBetweenPoints;
     }
 
     public void setLineColor(Material lineColor)
     {
         this.lineColor = lineColor;
-        lineRenderer.material = lineColor;
+        lineRenderer.startColor = lineColor.color;
+        lineRenderer.endColor = lineColor.color;
     }
 
     void Start()
     {
-        lineRenderer = GetComponent<LineRenderer>();
-        lineRenderer.enabled = false;
-        lineRenderer.startWidth = 3;
-        lineRenderer.endWidth = 3;
-        lineRenderer.positionCount = 0;
+        
 
         gameManager = FindObjectOfType<GameManager>();
         if (gameManager == null)
@@ -50,16 +52,39 @@ public class Line : MonoBehaviour
         }
 
         Initialize(gameManager);
+
+        lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.enabled = false;
+        lineRenderer.startWidth = lineWidth;
+        lineRenderer.endWidth = lineWidth;
+        lineRenderer.positionCount = 0;
+        //setLineColor(lineColor);
     }
 
     private void Update()
     {
-        if(isDrawing)
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out RaycastHit hitInfo))
+        {
+            if (hitInfo.transform.CompareTag("Finish"))
+            {
+                Debug.Log("Hit on stop part");
+                Invoke("delayStopDrawing",0.03f);
+            }
+        }
+
+
+        if (isDrawing)
         {
             updateDrawing();
         }
     }
 
+    private void delayStopDrawing()
+    {
+        isDrawing = false;
+    }
 
     public void startDrawing()
     {
