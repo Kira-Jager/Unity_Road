@@ -6,20 +6,29 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     private bool isJumping = false;
+    private bool flipRotation = false;
 
     private Rigidbody rb;
+    private bool maxRotationDecreased = false;
 
+    private float rotationDirection = 1f;
+    private Quaternion targetRotation;
+    private Quaternion lastRotation;
 
     public float currentRotation = 0;
-    private float maxRotation = 180;
+    float previousMaxROtation;
 
+
+    public float amount = 2f;
+    public float decreaseAmount = 2f;
+
+    public float maxRotation = 90;
+    //public float currentMaxRotation = 90;
+    public float threshold = 0.1f;
     public float jumpForce = 10f;
-    //public float balanceForce = 10f;
-    public float rotationSpeed = 10f;
-    public float rotationForce = 10f;
+/*    public float rotationSpeed = 10f;
+    public float rotationForce = 10f;*/
 
-    public int maxIterations = 1000; // Set an appropriate maximum iteration count
-    int iterationCount = 0;
     // Start is called before the first frame update
     void Start()
     {
@@ -31,152 +40,235 @@ public class Player : MonoBehaviour
     {
         if (isJumping == false)
         {
-
-           Invoke("balance",2f);
+            balance();
+            //Invoke("balance",2f);
         }
     }
 
     private void OnEnable()
     {
+        //GetComponent<Rigidbody>().isKinematic = false;
+
         InputController.onKeyPressed += jump;
     }
 
     private void OnDisable()
     {
         InputController.onKeyPressed -= jump;
+
+        //GetComponent<Rigidbody>().isKinematic = true;
+
     }
 
     private void jump()
     {
         isJumping = true;
 
-        rb.AddRelativeForce(Vector3.forward * jumpForce);
+        rb.AddRelativeForce(Vector3.up * jumpForce);
 
-        isJumping = false;
     }
+
+    private void Balance()
+    {
+        if (maxRotation > 0)
+        {
+            currentRotation += amount * rotationDirection;
+
+            Quaternion targetRotation = Quaternion.Euler(0, 0, currentRotation);
+            transform.rotation = targetRotation;
+
+            if (Mathf.Abs(currentRotation) > maxRotation)
+            {
+                // Decrease maxRotation after it's been reached
+                Debug.Log("Max rotation" + maxRotation);
+                maxRotation -= decreaseAmount;
+                switchDirection();
+            }
+        }
+    }
+
+    private void switchDirection()
+    {
+        rotationDirection *= -1;
+        
+        transform.rotation = Quaternion.Euler(0, 0, maxRotation * rotationDirection);
+    }
+
 
 
 
     private void balance()
     {
-        while (Mathf.Abs(currentRotation - maxRotation/2) > 1f && Mathf.Abs(rotationForce) > 0.001f)
+        if (maxRotation > threshold)
         {
-            float amount = (rotationForce * rotationSpeed) / (maxRotation - currentRotation) * Time.deltaTime;
-
-            // Check for potential division by zero
-            if (Mathf.Approximately(maxRotation, currentRotation))
+            if (flipRotation == false)
             {
-                break; // Avoid division by zero
+                currentRotation += amount;
+                rotatePlayer();
             }
-
-            currentRotation += amount;
-
-            if (rotationForce > 0.0f)
+            else
             {
-                rotationForce -= amount/2;
+                currentRotation -= amount;
+                rotatePlayer();
             }
-            //Debug.Log("current rot " + currentRotation);
-
-            // Calculate the new target rotation
-            Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, currentRotation));
-
-            // Slerp from the current rotation to the target rotation
-            transform.rotation = Quaternion.Slerp(Quaternion.Euler(Vector3.zero), targetRotation, 0.2f);
         }
+        
+    }
+    private void rotatePlayer()
+    {
+        
 
- /*       rotationForce = -rotationForce;
-
-        while (currentRotation < maxRotation / 2 && Mathf.Abs(rotationForce) > 0.001f)
+        Quaternion targetRotation = Quaternion.Euler(0, 0, currentRotation);
+        transform.rotation = targetRotation;
+        //lastRotation = Quaternion.Slerp(lastRotation != null ? lastRotation : Quaternion.Euler(Vector3.zero), targetRotation, 0.2f);
+        //transform.rotation = lastRotation;
+        if (currentRotation > maxRotation)
         {
-            Debug.Log("in second loop" );
-            float amount = (rotationForce * rotationSpeed) / (maxRotation - currentRotation) * Time.deltaTime;
+            flipRotation = true;
+            maxRotationDecreased = false;
+        }
+        else if (currentRotation < -maxRotation)
+        {
+            flipRotation = false;
+            maxRotationDecreased = false;
+        }
+        if (maxRotationDecreased == false && Mathf.Abs(currentRotation) > maxRotation )
+        {
+            maxRotation -=  decreaseAmount; 
+            maxRotationDecreased = true; // Set the flag to prevent further decrease
+            Debug.Log("max Rotation " + maxRotation); //work only when decreased amount < amount
+        }
+    }
+}
 
-            // Check for potential division by zero
-            if (Mathf.Approximately(maxRotation, currentRotation))
-            {
-                break; // Avoid division by zero
-            }
 
+/*  private void balance()
+
+    { 
+        if (flipRotation == false)
+        {
             currentRotation += amount;
-
-            if (rotationForce < 0.0f)
-            {
-                rotationForce += amount / 2;
-            }
-            iterationCount++;
-            if (iterationCount >= maxIterations)
-            {
-                Debug.LogWarning("Reached maximum iteration count. Exiting loop.");
-                break;
-            }
-
-            // Calculate the new target rotation
-            Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, currentRotation));
-
-            // Slerp from the current rotation to the target rotation
-            transform.rotation = Quaternion.Slerp(Quaternion.Euler(Vector3.zero), targetRotation, 0.2f);
-        }*/
-
-
-
-
-        /*while (Mathf.Abs(currentRotation) < maxRotation)
+            rotatePlayer();
+        }
+        else
         {
-            float amount = (rotationForce * rotationSpeed) / (maxRotation - currentRotation) * Time.deltaTime;
-            // += amount;
-
-            float newRotation = currentRotation + amount;
-
-            // Limit the rotation so it doesn't go beyond maxRotation
-            //currentAmount = Mathf.Clamp(currentAmount, 0, maxRotation - currentRotation);
-
-            transform.Rotate(new Vector3(currentRotation,0,0), newRotation);
-
-            Debug.Log("current rotation " + currentRotation);
-            //Debug.Log("current force " + rotationForce);
+            currentRotation -= amount;
+            rotatePlayer();
+        }
+    }
 
 
-            currentRotation += currentAmount;
+    private void rotatePlayer()
+    {
+        Quaternion targetRotation = Quaternion.Euler(0, 0, currentRotation);
+        lastRotation = Quaternion.Slerp(lastRotation != null ? lastRotation : Quaternion.Euler(Vector3.zero), targetRotation, 0.2f);
+        transform.rotation = lastRotation;
+
+        if (Math.Abs(currentRotation - maxRotation) <= threshold)
+        {
+            flipRotation = true;
+            maxRotationDecreased = false;
+        }
+        else if (Math.Abs(currentRotation - (-maxRotation)) <= threshold)
+        {
+            flipRotation = false;
+            maxRotationDecreased = false;
+        }
+        if (!maxRotationDecreased && Mathf.Abs(Mathf.Abs(currentRotation) - maxRotation) > threshold)
+        {
+            maxRotation = maxRotation - decreaseAmount;
+            maxRotationDecreased = true; // Set the flag to prevent further decrease
+            Debug.Log("max Rotation " + maxRotation);
+        }
+    }*/
+
+
+
+/*    private void rotatePlayer()
+    {
+       
+            //float amount = (rotationForce * rotationSpeed) / (maxRotation - Mathf.Abs(currentRotation)) * Time.deltaTime;
+
+
+            //currentRotation += amount;
 
             if (rotationForce > 0)
             {
-                rotationForce -= amount;
-                //rotationSpeed -= amount;
+                // Cap rotation within 0 to 180
+                //currentRotation = Mathf.Clamp(currentRotation, 0, maxRotation);
+
+                // Decrease rotationForce if it exceeds a threshold
+                
+                rotationForce -= amount ;
+                
+            }
+            else
+            {
+                // Cap rotation within -180 to 0
+                //currentRotation = Mathf.Clamp(currentRotation, -maxRotation, 0);
+
+                // Increase rotationForce if it is below a threshold
+             
+                 rotationForce += amount ;
+                
             }
 
-           // yield return new WaitForSeconds(.5f);
-        }*/
+        currentRotation += amount;
 
-        /*        currentRotation = 0;
+        Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, currentRotation));
+            lastRotation = Quaternion.Slerp(lastRotation != null ? lastRotation : Quaternion.Euler(Vector3.zero), targetRotation, 0.2f);
+            transform.rotation = lastRotation;
 
-                rotationForce = -rotationForce;
-                //Debug.Log("rotation force " + rotationForce);
+            if (Mathf.Approximately(Mathf.Abs(currentRotation), maxRotation - 1))
+            {
+                Debug.Log("flipped");
+                flipRotation = true;
+            }
+            else
+            {
+                Debug.Log("nothing yet");
+            }
+        
+    }*/
 
-                while (Mathf.Abs(currentRotation) < maxRotation)
 
 
+/*    private void rotatePlayer()
+    {
+        if ( Mathf.Abs(rotationForce) > 0.1f)
+        {
+            float amount = (rotationForce * rotationSpeed) / (maxRotation - currentRotation) * Time.deltaTime;
+
+            currentRotation += amount;
+
+            if (rotationForce > 0.1f)
+            {
+                rotationForce -= amount / 2;
+            }
+            else if (rotationForce < 0.1f)
+            {
+                rotationForce += amount/2;
+            }
+
+            Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, currentRotation));
+            lastRotation = Quaternion.Slerp(lastRotation != null ? lastRotation : Quaternion.Euler(Vector3.zero), targetRotation, 0.2f);
+            transform.rotation = lastRotation;
+
+            if(rotationForce > 0)
+            {
+                if (Mathf.Approximately(currentRotation , (maxRotation / 2) -1) )
                 {
-                    float amount = (rotationForce * rotationSpeed) / (maxRotation - currentRotation) * Time.deltaTime;
-                    //currentAmount += amount;
+                    Debug.Log("flipped");
+                    flipRotation = true;
+                }
+            }
+            else
+            {
+                    Debug.Log("nothing yet");
 
-                    float newRotation = currentRotation + amount;
+            }
 
-                    // Limit the rotation so it doesn't go beyond maxRotation
-                    currentAmount = Mathf.Clamp(currentAmount, 0, maxRotation - currentRotation);
+        }
+    }*/
 
-                    transform.Rotate(Vector3.up, newRotation);
 
-                    Debug.Log("current rotation in second while loop " + currentAmount);
-
-                    currentRotation += currentAmount;
-
-                    if (Math.Abs(rotationForce) > 0)
-                    {
-                        rotationForce += amount;
-                    }
-
-                   // yield return new WaitForSeconds(.5f);
-                }*/
-    }
-
-}
